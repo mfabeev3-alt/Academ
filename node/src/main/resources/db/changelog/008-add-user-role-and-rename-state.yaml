@@ -1,0 +1,17 @@
+databaseChangeLog:
+  - changeSet:
+      id: add-user-role-and-rename-state
+      author: shatskikh
+      changes:
+        - addColumn:
+            tableName: app_user
+            columns:
+              - column:
+                  name: user_role
+                  type: varchar(50)
+
+        - renameColumn:
+            tableName: app_user
+            oldColumnName: state
+            newColumnName: user_state
+            columnDataType: varchar(255)

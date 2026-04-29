@@ -1,0 +1,97 @@
+package ru.shatskikh.node.service.commands.service;
+
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.telegram.telegrambots.meta.api.objects.Update;
+import ru.shatskikh.entity.AppUser;
+import ru.shatskikh.entity.Group;
+import ru.shatskikh.entity.enums.UserState;
+import ru.shatskikh.node.utils.MessageSender;
+import ru.shatskikh.repository.AppUserRepository;
+import ru.shatskikh.repository.GroupRepository;
+
+import java.util.List;
+import java.util.Optional;
+
+@Service
+public class RegistrationService {
+
+    private final AppUserRepository appUserRepository;
+    private final GroupRepository groupRepository;
+    private final MessageSender messageSender;
+
+
+    @Autowired
+    public RegistrationService(AppUserRepository appUserRepository, GroupRepository groupRepository, MessageSender messageSender) {
+        this.appUserRepository = appUserRepository;
+        this.groupRepository = groupRepository;
+        this.messageSender = messageSender;
+    }
+
+    public void handleRegistration(Update update, AppUser user, Long chatId) {
+        String text = update.getMessage().getText();
+
+        switch (user.getUserState()) {
+
+            case AWAITING_FIO -> processFioStep(text, user, chatId);
+            case AWAITING_GROUP -> processGroupStep(text, user, chatId);
+            case PENDING_APPROVAL ->
+                    messageSender.sendAnswer("Ваша заявка ещё на рассмотрении у старосты", chatId);
+            default ->
+                    messageSender.sendAnswer("Чтобы начать регистрацию, введите /registration", chatId);
+        }
+
+    }
+
+    private void processFioStep(String fio, AppUser user, Long chatId) {
+        user.setFio(fio);
+        user.setUserState(UserState.AWAITING_GROUP);
+        messageSender.sendAnswer("Принято! Теперь введите номер вашей группы (например, ОП341): ", chatId);
+    }
+
+    private void processGroupStep(String group, AppUser user, Long chatId) {
+
+        Optional<Group> groupOut = groupRepository.findByName(group);
+
+        if(groupOut.isEmpty()){
+            messageSender.sendAnswer("Группа " + group + " не найдена! Уточните название", chatId);
+            return;
+        }
+
+        user.setGroup(groupOut.get());
+        user.setUserState(UserState.PENDING_APPROVAL);
+        appUserRepository.save(user);
+
+        messageSender.sendAnswer("Данные переданы старосте группы. Ожидайте подтверждения!", chatId);
+
+        notifyLeader(user, groupOut.get());
+    }
+
+    private void notifyLeader(AppUser student, Group group ) {
+
+        List<AppUser> leaders = appUserRepository.findAppUserByUserRoleAndGroup(student.getUserRole(), group);
+
+        if(leaders.isEmpty()) {
+            //TODO redirect to admin
+            return;
+        }
+
+        for(AppUser leader: leaders) {
+
+            String messageText = String.format(
+                    "Новая заявка на вступление!\n\n" +
+                     "Студент: %s\n\n" +
+                     "Группа: %s\n\n" +
+                     "Username: @%s",
+                    student.getFio(), group.getName(), student.getUsername()
+            );
+
+            messageSender.sendAnswerWithApprovalKeyboard(messageText, leader.getId());
+
+        }
+
+    }
+
+
+}

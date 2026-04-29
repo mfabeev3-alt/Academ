@@ -1,0 +1,11 @@
+databaseChangeLog:
+  - changeSet:
+      id: add column type into app_doc
+      author: shatskikh
+      changes:
+        - addColumn:
+            tableName: app_document
+            columns:
+              - column:
+                  name: file_type
+                  type: varchar(100)

@@ -1,0 +1,50 @@
+databaseChangeLog:
+  - changeSet:
+      id: create table rawdata
+      author: shatskikh
+      changes:
+        - createTable:
+            tableName: app_user
+            columns:
+              - column:
+                  name: id
+                  type: bigserial
+                  constraints:
+                    primaryKey: true
+
+              - column:
+                  name: telegram_user_id
+                  type: bigint
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: first_login
+                  type: timestamptz
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: first_name
+                  type: varchar(100)
+
+              - column:
+                  name: last_name
+                  type: varchar(100)
+
+              - column:
+                  name: username
+                  type: varchar(100)
+
+              - column:
+                  name: email
+                  type: varchar(100)
+
+              - column:
+                  name: is_active
+                  type: boolean
+
+              - column:
+                  name: userRole
+                  type: varchar(100)
+

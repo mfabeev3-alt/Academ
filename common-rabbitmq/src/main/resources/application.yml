@@ -1,0 +1,7 @@
+app:
+  rabbitmq:
+    queues:
+      doc-update: "DOC_MESSAGE_UPDATE"
+      text-update: "TEXT_MESSAGE_UPDATE"
+      photo-update: "PHOTO_MESSAGE_UPDATE"
+      answer: "ANSWER_MESSAGE"

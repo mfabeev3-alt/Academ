@@ -1,0 +1,28 @@
+databaseChangeLog:
+  - changeSet:
+      id: alter-app-user-add-group-and-rename-columns
+      author: shatskikh
+      changes:
+        - addColumn:
+            tableName: app_user
+            columns:
+              - column:
+                  name: group_id
+                  type: bigint
+
+        - addForeignKeyConstraint:
+            baseTableName: app_user
+            baseColumnNames: group_id
+            referencedTableName: "group"
+            referencedColumnNames: id
+            constraintName: fk_app_user_group_id
+
+        - renameColumn:
+            tableName: app_user
+            oldColumnName: is_active
+            newColumnName: is_approved
+            columnDataType: boolean
+
+        - dropColumn:
+            tableName: app_user
+            columnName: email

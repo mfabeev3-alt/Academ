@@ -1,0 +1,16 @@
+databaseChangeLog:
+  - changeSet:
+      id: change-pk-app-user-to-telegram-id
+      author: shatskikh
+      changes:
+        - dropPrimaryKey:
+            tableName: app_user
+
+        - addPrimaryKey:
+            tableName: app_user
+            columnNames: telegram_user_id
+            constraintName: pk_app_user_telegram_user_id
+
+        - dropColumn:
+            tableName: app_user
+            columnName: id

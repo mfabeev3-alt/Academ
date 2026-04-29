@@ -1,0 +1,20 @@
+databaseChangeLog:
+  - include:
+      file: db/changelog/001-create-table-rawdata.yaml
+  - include:
+      file: db/changelog/002-create-table-app_user.yaml
+  - include:
+      file: db/changelog/003-create-table-App_Document.yaml
+  - include:
+      file: db/changelog/004-alter-table-app_document.yaml
+  - include:
+      file: db/changelog/005-change-pk-app-user-to-telegram-id.yaml
+  - include:
+      file: db/changelog/006-create-table-group.yaml
+  - include:
+      file: db/changelog/007-alter-table-app-user-add-column-group.yaml
+  - include:
+      file: db/changelog/008-add-user-role-and-rename-state.yaml
+  - include:
+      file: db/changelog/009-alter-table-app-user-add-column-fio.yaml
+

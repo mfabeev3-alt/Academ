@@ -1,0 +1,12 @@
+databaseChangeLog:
+  - changeSet:
+      id: alter-table-app-user-add-column
+      author: shatskikh
+      changes:
+        - addColumn:
+            tableName: app_user
+            columns:
+              - column:
+                  name: fio
+                  type: varchar(255)
+

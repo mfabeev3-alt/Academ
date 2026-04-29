@@ -1,0 +1,19 @@
+databaseChangeLog:
+  - changeSet:
+      id: create table rawdata
+      author: shatskikh
+      changes:
+        - createTable:
+            tableName: raw_data
+            columns:
+              - column:
+                  name: id
+                  type: bigserial
+                  constraints:
+                    primaryKey: true
+
+              - column:
+                  name: event
+                  type: jsonb
+                  constraints:
+                    nullable: false

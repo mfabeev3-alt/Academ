@@ -1,0 +1,35 @@
+databaseChangeLog:
+  - changeSet:
+      id: create-app-document-table
+      author: shatskikh
+      changes:
+        - createTable:
+            tableName: app_document
+            columns:
+              - column:
+                  name: id
+                  type: BIGSERIAL
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: pk_app_document
+                    nullable: false
+
+              - column:
+                  name: telegram_file_id
+                  type: VARCHAR(255)
+
+              - column:
+                  name: doc_name
+                  type: VARCHAR(255)
+
+              - column:
+                  name: mime_type
+                  type: VARCHAR(255)
+
+              - column:
+                  name: file_size
+                  type: BIGINT
+
+              - column:
+                  name: s3_key
+                  type: VARCHAR(512)
