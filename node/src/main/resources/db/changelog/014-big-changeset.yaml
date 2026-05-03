@@ -1,0 +1,55 @@
+databaseChangeLog:
+  - changeSet:
+      id: change-course-type-to-varchar
+      author: shatskikh
+      changes:
+        - modifyDataType:
+            tableName: app_group
+            columnName: course
+            newDataType: varchar(50)
+
+  - changeSet:
+      id: fk-app-user-group-on-delete-set-null
+      author: shatskikh
+      changes:
+        - dropForeignKeyConstraint:
+            baseTableName: app_user
+            constraintName: fk_app_user_group_id
+
+        - addForeignKeyConstraint:
+            baseTableName: app_user
+            baseColumnNames: group_id
+            referencedTableName: app_group
+            referencedColumnNames: id
+            constraintName: fk_app_user_group_id
+            onDelete: SET NULL
+
+  - changeSet:
+      id: fk-group-faculty-on-delete-set-null
+      author: shatskikh
+      changes:
+        - dropForeignKeyConstraint:
+            baseTableName: app_group
+            constraintName: fk_app_group_faculty
+
+        - addForeignKeyConstraint:
+            baseTableName: app_group
+            baseColumnNames: faculty_id
+            referencedTableName: faculty
+            referencedColumnNames: id
+            constraintName: fk_app_group_faculty
+            onDelete: SET NULL
+
+  - changeSet:
+      id: make-fk-columns-nullable
+      author: shatskikh
+      changes:
+        - dropNotNullConstraint:
+            tableName: app_user
+            columnName: group_id
+            columnDataType: bigint
+
+        - dropNotNullConstraint:
+            tableName: app_group
+            columnName: faculty_id
+            columnDataType: bigint

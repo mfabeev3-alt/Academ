@@ -1,0 +1,37 @@
+databaseChangeLog:
+  - changeSet:
+      id: 20260430-1
+      author: shatskikh
+      changes:
+        - renameTable:
+            oldTableName: group
+            newTableName: app_group
+
+  - changeSet:
+      id: 20260430-2
+      author: shatskikh
+      changes:
+        # 1. Удаляем старый PK (если он был на telegram_user_id)
+        # Имя констрейнта в Postgres по умолчанию: имяТаблицы_pkey
+        - dropPrimaryKey:
+            tableName: app_user
+            constraintName: pk_app_user_telegram_user_id
+
+        # 2. Добавляем новый системный ID
+        - addColumn:
+            tableName: app_user
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+
+        # 3. Делаем telegram_user_id уникальным
+        - addUniqueConstraint:
+            tableName: app_user
+            columnNames: telegram_user_id
+            constraintName: uk_app_user_telegram_id
+

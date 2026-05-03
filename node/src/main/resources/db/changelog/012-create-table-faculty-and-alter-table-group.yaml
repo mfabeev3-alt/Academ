@@ -1,0 +1,40 @@
+databaseChangeLog:
+  - changeSet:
+      id: create-faculty-table
+      author: shatskikh
+      changes:
+        - createTable:
+            tableName: faculty
+            columns:
+              - column:
+                  name: id
+                  type: bigserial
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+
+              - column:
+                  name: name
+                  type: varchar(255)
+
+              - column:
+                  name: chief
+                  type: varchar(255)
+
+  - changeSet:
+      id: add-faculty-fk-to-app-group
+      author: shatskikh
+      changes:
+        - addColumn:
+            tableName: app_group
+            columns:
+              - column:
+                  name: faculty_id
+                  type: bigint
+
+        - addForeignKeyConstraint:
+            baseTableName: app_group
+            baseColumnNames: faculty_id
+            constraintName: fk_app_group_faculty
+            referencedTableName: faculty
+            referencedColumnNames: id

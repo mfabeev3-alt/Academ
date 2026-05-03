@@ -1,0 +1,13 @@
+databaseChangeLog:
+  - changeSet:
+      id: add-temp-data-column-to-app-user
+      author: shatskikh
+      changes:
+        - addColumn:
+            tableName: app_user
+            columns:
+              - column:
+                  name: temp_data
+                  type: varchar(255)
+                  constraints:
+                    nullable: true

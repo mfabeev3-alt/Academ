@@ -1,0 +1,40 @@
+databaseChangeLog:
+
+  # =========================
+  # PROFESSOR -> GROUP CASCADE
+  # =========================
+  - changeSet:
+      id: fk-professor-group-cascade
+      author: shatskikh
+      changes:
+        - dropForeignKeyConstraint:
+            baseTableName: professor
+            constraintName: fk_professor_group_id
+
+        - addForeignKeyConstraint:
+            baseTableName: professor
+            baseColumnNames: group_id
+            referencedTableName: app_group
+            referencedColumnNames: id
+            constraintName: fk_professor_group_id
+            onDelete: CASCADE
+
+
+  # =========================
+  # SUBJECT -> GROUP CASCADE
+  # =========================
+  - changeSet:
+      id: fk-subject-group-cascade
+      author: saveliy shatskikh
+      changes:
+        - dropForeignKeyConstraint:
+            baseTableName: subject
+            constraintName: fk_subject_group_id
+
+        - addForeignKeyConstraint:
+            baseTableName: subject
+            baseColumnNames: group_id
+            referencedTableName: app_group
+            referencedColumnNames: id
+            constraintName: fk_subject_group_id
+            onDelete: CASCADE

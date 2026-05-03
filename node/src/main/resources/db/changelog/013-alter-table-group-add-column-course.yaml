@@ -1,0 +1,11 @@
+databaseChangeLog:
+  - changeSet:
+      id: add-course-to-app-group
+      author: shatskikh
+      changes:
+        - addColumn:
+            tableName: app_group
+            columns:
+              - column:
+                  name: course
+                  type: int

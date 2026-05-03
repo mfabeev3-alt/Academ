@@ -39,7 +39,8 @@ public class TelegramBot extends TelegramLongPollingBot {
             try {
                 execute(message);
             } catch (TelegramApiException e) {
-                log.error("Ошибка при физической отправке: " + e.getMessage());
+                log.error("Ошибка при физической отправке: " + e.getMessage() + " " + message.getChatId());
+
             }
         }
     }

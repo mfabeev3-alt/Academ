@@ -18,10 +18,12 @@ import java.time.Instant;
 @Table(name = "app_user")
 public class AppUser {
 
-
     @Id
+    @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(name="telegram_user_id")
     private Long telegramUserId;
 
     @CreationTimestamp
@@ -31,8 +33,6 @@ public class AppUser {
     private String lastName;
     private String username;
     private String fio;
-
-    private String email;
     private Boolean isApproved;
 
     @Enumerated (EnumType.STRING)  //ordinal – возврращает объект типа Integer, т.е. порядковый номер объекта в Enum. String – возвращает название константы
@@ -41,8 +41,10 @@ public class AppUser {
     @Enumerated(EnumType.STRING)
     private UserState userState;
 
+    private String tempData;
+
     @ManyToOne
-    @JoinColumn(name = "id")
+    @JoinColumn(name = "group_id") //Имя колонки в таблице app_user, хранящая ссылку на таблицу с группами
     private Group group;
 
 }

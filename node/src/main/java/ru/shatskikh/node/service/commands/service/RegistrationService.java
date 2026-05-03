@@ -1,9 +1,13 @@
 package ru.shatskikh.node.service.commands.service;
 
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import ru.shatskikh.entity.AppUser;
 import ru.shatskikh.entity.Group;
 import ru.shatskikh.entity.enums.UserState;
@@ -11,9 +15,14 @@ import ru.shatskikh.node.utils.MessageSender;
 import ru.shatskikh.repository.AppUserRepository;
 import ru.shatskikh.repository.GroupRepository;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import static ru.shatskikh.node.utils.enums.Buttons.APPROVE_USER;
+import static ru.shatskikh.node.utils.enums.Buttons.DECLINE_USER;
+
+@Slf4j
 @Service
 public class RegistrationService {
 
@@ -47,7 +56,10 @@ public class RegistrationService {
     private void processFioStep(String fio, AppUser user, Long chatId) {
         user.setFio(fio);
         user.setUserState(UserState.AWAITING_GROUP);
-        messageSender.sendAnswer("Принято! Теперь введите номер вашей группы (например, ОП341): ", chatId);
+        appUserRepository.save(user);
+        log.info("User " + user.getUsername() +" is " + user.getUserState().toString());
+        messageSender.sendAnswer("Принято! Теперь введите номер вашей группы (например, ОП341) ", chatId);
+
     }
 
     private void processGroupStep(String group, AppUser user, Long chatId) {
@@ -64,6 +76,7 @@ public class RegistrationService {
         appUserRepository.save(user);
 
         messageSender.sendAnswer("Данные переданы старосте группы. Ожидайте подтверждения!", chatId);
+        log.debug("User " + user.getUsername() +" is " + user.getUserState().toString());
 
         notifyLeader(user, groupOut.get());
     }
@@ -87,11 +100,30 @@ public class RegistrationService {
                     student.getFio(), group.getName(), student.getUsername()
             );
 
-            messageSender.sendAnswerWithApprovalKeyboard(messageText, leader.getId());
+            buildAndSendMessage(messageText, leader.getTelegramUserId(), student.getTelegramUserId());
 
         }
 
     }
 
 
+        private void buildAndSendMessage(String output, Long leaderChatId, Long studentChatId){
+
+            var sendMessage = new SendMessage();
+            sendMessage.setChatId(leaderChatId);
+            sendMessage.setText(output);
+
+            var markup = new InlineKeyboardMarkup();
+            List<List<InlineKeyboardButton>> rows = new ArrayList<>();
+
+            rows.add(List.of(
+                    InlineKeyboardButton.builder().text("Подтвердить").callbackData(APPROVE_USER.getValue()).build(),
+                    InlineKeyboardButton.builder().text("Отклонить").callbackData(DECLINE_USER.getValue()).build()
+            ));
+
+            markup.setKeyboard(rows);
+
+            messageSender.sendAnswerWithKeyboard(output, leaderChatId, markup);
+
+        }
 }

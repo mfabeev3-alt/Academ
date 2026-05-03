@@ -1,0 +1,85 @@
+databaseChangeLog:
+  - changeSet:
+      id: 20260502-create-schedule-item
+      author: shatskikh
+      changes:
+        - createTable:
+            tableName: schedule_item
+            columns:
+              - column:
+                  name: id
+                  type: bigserial
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: group_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: professor_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: subject_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: room
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: day_of_week
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: start_time
+                  type: TIME
+                  constraints:
+                    nullable: false
+              - column:
+                  name: end_time
+                  type: TIME
+                  constraints:
+                    nullable: false
+              - column:
+                  name: is_moved
+                  type: BOOLEAN
+                  defaultValueBoolean: false
+                  constraints:
+                    nullable: false
+              - column:
+                  name: moved_date
+                  type: DATE
+
+        # CASCADE для группы (удаляем группу — удаляется расписание)
+        - addForeignKeyConstraint:
+            baseTableName: schedule_item
+            baseColumnNames: group_id
+            constraintName: fk_schedule_item_group_id
+            referencedTableName: app_group
+            referencedColumnNames: id
+            onDelete: CASCADE
+
+        # RESTRICT для преподавателя (нельзя удалить, если есть в расписании)
+        - addForeignKeyConstraint:
+            baseTableName: schedule_item
+            baseColumnNames: professor_id
+            constraintName: fk_schedule_item_professor_id
+            referencedTableName: professor
+            referencedColumnNames: id
+            onDelete: RESTRICT
+
+        # RESTRICT для предмета (нельзя удалить, если есть в расписании)
+        - addForeignKeyConstraint:
+            baseTableName: schedule_item
+            baseColumnNames: subject_id
+            constraintName: fk_schedule_item_subject_id
+            referencedTableName: subject
+            referencedColumnNames: id
+            onDelete: RESTRICT

@@ -30,32 +30,15 @@ public class MessageSender {
         producerService.produceAnswer(sendMessage);
     }
 
-    public void sendAnswerWithApprovalKeyboard(String output, Long chatId) {
+
+    public void sendAnswerWithKeyboard(String output, Long leaderChatId, InlineKeyboardMarkup markup) {
 
         var sendMessage = new SendMessage();
-        sendMessage.setChatId(chatId);
+        sendMessage.setChatId(leaderChatId);
         sendMessage.setText(output);
 
-        var markup = new InlineKeyboardMarkup();
-        List<List<InlineKeyboardButton>> rowsInline = new ArrayList<>();
-        List<InlineKeyboardButton> rowInline = new ArrayList<>();
-
-        var yesButton = new InlineKeyboardButton();
-        yesButton.setText(APPROVE_USER.getValue());
-        yesButton.setCallbackData(APPROVE_USER.name());
-
-        var noButton = new InlineKeyboardButton();
-        noButton.setText(DECLINE_USER.getValue() + ":" + chatId);
-        noButton.setCallbackData(DECLINE_USER.name() + ":" + chatId);
-
-        rowInline.add(yesButton);
-        rowInline.add(noButton);
-
-        rowsInline.add(rowInline);
-
-        markup.setKeyboard(rowsInline);
-
         sendMessage.setReplyMarkup(markup);
+        producerService.produceAnswer(sendMessage);
     }
 
 }

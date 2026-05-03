@@ -17,4 +17,19 @@ databaseChangeLog:
       file: db/changelog/008-add-user-role-and-rename-state.yaml
   - include:
       file: db/changelog/009-alter-table-app-user-add-column-fio.yaml
-
+  - include:
+      file: db/changelog/010-alter-table-app-user-and-group.yaml
+  - include:
+      file: db/changelog/011-alter-table-app-user-add-column-temp-data.yaml
+  - include:
+      file: db/changelog/012-create-table-faculty-and-alter-table-group.yaml
+  - include:
+      file: db/changelog/013-alter-table-group-add-column-course.yaml
+  - include:
+      file: db/changelog/014-big-changeset.yaml
+  - include:
+      file: db/changelog/015-create-table-professor-and-subject.yaml
+  - include:
+      file: db/changelog/016-set-on-delete-cascade-table-professor-subject.yaml
+  - include:
+      file: db/changelog/017-create-table-schedule-item.yaml

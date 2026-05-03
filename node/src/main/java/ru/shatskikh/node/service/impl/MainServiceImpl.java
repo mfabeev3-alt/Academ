@@ -1,21 +1,26 @@
 package ru.shatskikh.node.service.impl;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.api.objects.User;
 import ru.shatskikh.entity.AppDocument;
 import ru.shatskikh.entity.AppUser;
-import ru.shatskikh.entity.enums.UserState;
 import ru.shatskikh.node.entity.RawData;
 import ru.shatskikh.node.repositories.RawDataRepository;
 import ru.shatskikh.node.service.CallbackHandler;
 import ru.shatskikh.node.service.FileService;
 import ru.shatskikh.node.service.MainService;
 import ru.shatskikh.node.service.ProducerService;
-import ru.shatskikh.node.service.commands.CommandDispatcher;
+import ru.shatskikh.node.service.commands.dispatcherImpl.CallbackDispatcher;
+import ru.shatskikh.node.service.commands.dispatcherImpl.CommandDispatcher;
+import ru.shatskikh.node.service.commands.dispatcherImpl.StateDispatcher;
+import ru.shatskikh.node.service.commands.service.RegistrationService;
 import ru.shatskikh.node.utils.MessageSender;
 import ru.shatskikh.repository.AppUserRepository;
+
+import java.util.Optional;
 
 import static ru.shatskikh.entity.enums.UserRole.*;
 import static ru.shatskikh.entity.enums.UserState.IDLE;
@@ -23,6 +28,7 @@ import static ru.shatskikh.node.service.enums.ServiceCommands.*;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class MainServiceImpl implements MainService {
 
     private final RawDataRepository rawDataRepository;
@@ -30,19 +36,11 @@ public class MainServiceImpl implements MainService {
     private final AppUserRepository appUserRepository;
     private final FileService fileService;
     private final MessageSender messageSender;
-    private final CommandDispatcher commandDispatcher;
     private final CallbackHandler callbackHandler;
+    private final CommandDispatcher commandDispatcher;
+    private final CallbackDispatcher callbackDispatcher;
+    private final StateDispatcher stateDispatcher;
 
-    @Autowired
-    public MainServiceImpl(RawDataRepository rawDataRepository, ProducerService producerService, AppUserRepository appUserRepository, FileService fileService, MessageSender messageSender, CommandDispatcher commandDispatcher, CallbackHandler callbackHandler) {
-        this.rawDataRepository = rawDataRepository;
-        this.producerService = producerService;
-        this.appUserRepository = appUserRepository;
-        this.fileService = fileService;
-        this.messageSender = messageSender;
-        this.commandDispatcher = commandDispatcher;
-        this.callbackHandler = callbackHandler;
-    }
 
     @Override
     public void processTextMessage(Update update) {
@@ -53,24 +51,20 @@ public class MainServiceImpl implements MainService {
         var text = message.getText();
         var chatId = message.getChatId();
 
-
         var user = findOrSaveAppUser(update);
-        var userRole = user.getUserRole();
-
-        var output = "";
 
 
-        if (text.startsWith("/")) {
-            commandDispatcher.executeCommand(update, user);
+        if (text != null && text.startsWith("/")) {
+            commandDispatcher.dispatch(update, user);
             return;
         }
 
         if(user.getUserState() != IDLE){
 
+            stateDispatcher.dispatch(update, user);
 
         }
 
-        messageSender.sendAnswer(output, chatId);
     }
 
     @Override
@@ -93,7 +87,8 @@ public class MainServiceImpl implements MainService {
     @Override
     public void processCallbackQuery(Update update) {
 
-        callbackHandler.handle(update.getCallbackQuery());
+        var user = findOrSaveAppUser(update);
+        callbackDispatcher.dispatch(update, user);
 
     }
 
@@ -169,17 +164,24 @@ public class MainServiceImpl implements MainService {
 
     private AppUser findOrSaveAppUser(Update update) {
 
-        var telegramUser = update.getMessage().getFrom();
-        long telegramId = telegramUser.getId();
-        AppUser persistentAppUser = appUserRepository.findAppUserByTelegramUserId(telegramId);
+        User telegramUser = null;
 
-        if (persistentAppUser == null) {
+        if (update.hasMessage()) {
+            telegramUser = update.getMessage().getFrom();
+        } else if (update.hasCallbackQuery()) {
+            telegramUser = update.getCallbackQuery().getFrom();
+        }
+
+        long telegramId = telegramUser.getId();
+        Optional<AppUser> persistentAppUser = appUserRepository.findAppUserByTelegramUserId(telegramId);
+
+        if (persistentAppUser.isEmpty()) {
             AppUser transientAppUser = AppUser.builder()
                     .telegramUserId(telegramId)
                     .firstName(telegramUser.getFirstName())
                     .lastName(telegramUser.getLastName())
-                    //TODO ИЗМЕНИТЬ ЗНАЧЕННИЕ ПО УМОЛЧАНИЮ ПОСЛЕ ДОБАВЛЕНИЯ РЕГИСТРАЦИИ
-                    .isApproved(true)
+                    .username(telegramUser.getUserName())
+                    .isApproved(false)
                     .userRole(ROLE_GUEST)
                     .userState(IDLE)
                     .build();
@@ -188,7 +190,7 @@ public class MainServiceImpl implements MainService {
 
         }
 
-        return persistentAppUser;
+        return persistentAppUser.get();
     }
 
 }
