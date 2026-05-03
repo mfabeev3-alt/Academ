@@ -4,11 +4,9 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import ru.shatskikh.DTO.ScheduleResponseDto;
-import ru.shatskikh.exceptions.ScheduleNotCreatedException;
 import ru.shatskikh.service.ScheduleService;
 import ru.shatskikh.utils.ErrorMessageBuilder;
 
@@ -27,21 +25,6 @@ public class ScheduleController {
         return null;
     }
 
-
-    @PostMapping("/save")
-    public ResponseEntity<HttpStatus> saveSchedule(
-            @RequestBody @Valid ScheduleResponseDto scheduleResponseDto, BindingResult bindingResult) throws ScheduleNotCreatedException {
-
-        if(bindingResult.hasErrors()) {
-
-            throw new ScheduleNotCreatedException(errorMessageBuilder.buildErrorMessage(bindingResult));
-
-        }
-
-
-
-        return null;
-    }
 
 
 }

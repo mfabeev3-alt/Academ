@@ -1,0 +1,18 @@
+databaseChangeLog:
+  - changeSet:
+      id: add-unique-constraint-subject
+      author: shatskikh
+      changes:
+        - addUniqueConstraint:
+            tableName: subject
+            columnNames: subject, group_id
+            constraintName: uq_subject_name_group_id
+
+  - changeSet:
+      id: add-unique-constraint-professor
+      author: shatskikh
+      changes:
+        - addUniqueConstraint:
+            tableName: professor
+            columnNames: name, group_id
+            constraintName: uq_professor_name_group_id

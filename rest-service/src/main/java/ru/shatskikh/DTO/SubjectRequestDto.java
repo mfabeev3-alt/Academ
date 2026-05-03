@@ -9,8 +9,4 @@ public record SubjectRequestDto(
         @Size( max = 255, message = "Название предмета не может превышать 255 символов")
         String name
 
-) {
-
-
-
-}
+){}

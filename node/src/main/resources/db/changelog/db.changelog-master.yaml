@@ -33,3 +33,5 @@ databaseChangeLog:
       file: db/changelog/016-set-on-delete-cascade-table-professor-subject.yaml
   - include:
       file: db/changelog/017-create-table-schedule-item.yaml
+  - include:
+      file: db/changelog/019-add-unique-constraint-subject.yaml

@@ -57,5 +57,4 @@ public class Schedule {
     private LocalDate movedDate;
 
 
-
 }

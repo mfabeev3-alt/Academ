@@ -4,6 +4,7 @@ package ru.shatskikh.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import ru.shatskikh.entity.Schedule.Professor;
+import ru.shatskikh.entity.Schedule.Subject;
 import ru.shatskikh.entity.enums.Course;
 
 import java.util.List;
@@ -31,7 +32,10 @@ public class Group {
     private List<AppUser> students;
 
     @OneToMany(mappedBy = "group")
-    private Professor professor;
+    private List<Professor> professors;
+
+    @OneToMany(mappedBy = "group")
+    private List<Subject> subjects;
 
     @ManyToOne
     @JoinColumn(name = "faculty_id")

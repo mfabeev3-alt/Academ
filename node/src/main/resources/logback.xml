@@ -33,6 +33,11 @@
         <appender-ref ref="STDOUT"/>
     </logger>
 
+    <logger name="ru.shatskikh.rest-service" level="debug" additivity="false">
+        <appender-ref ref="FILE-ROLLING"/>
+        <appender-ref ref="STDOUT"/>
+    </logger>
+
     <logger name="ru.shatskikh.node" level="debug" additivity="false">
         <appender-ref ref="FILE-ROLLING"/>
         <appender-ref ref="STDOUT"/>
