@@ -1,0 +1,40 @@
+databaseChangeLog:
+  - changeSet:
+      id: 020-create-table-schedule-item-week
+      author: shatskikh
+      changes:
+        - createTable:
+            tableName: schedule_item_week
+            columns:
+              - column:
+                  name: schedule_item_id
+                  type: bigint
+                  constraints:
+                    nullable: false
+                    # Ограничение: если удаляем занятие, недели удаляются автоматически
+                    foreignKeyName: fk_schedule_week_to_item
+                    references: schedule_item(id)
+                    deleteCascade: true
+              - column:
+                  name: week_number
+                  type: int
+                  constraints:
+                    nullable: false
+
+        # Добавляем составной первичный ключ, чтобы нельзя было
+        # дважды добавить "1-ю неделю" для одного и того же занятия
+        - addPrimaryKey:
+            tableName: schedule_item_week
+            columnNames: schedule_item_id, week_number
+            constraintName: pk_schedule_item_week
+
+  - changeSet:
+      id: 020-add-index-to-week-number
+      author: shatskikh
+      changes:
+        - createIndex:
+            tableName: schedule_item_week
+            indexName: idx_schedule_week_num
+            columns:
+              - column:
+                  name: week_number

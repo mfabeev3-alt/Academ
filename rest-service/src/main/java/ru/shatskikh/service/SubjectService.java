@@ -11,7 +11,7 @@ import ru.shatskikh.entity.Group;
 import ru.shatskikh.entity.Schedule.Subject;
 import ru.shatskikh.entity.exceptions.EntityNotFoundException;
 import ru.shatskikh.mappers.SubjectMapper;
-import ru.shatskikh.repositories.SubjectRepository;
+import ru.shatskikh.repository.SubjectRepository;
 import ru.shatskikh.repository.GroupRepository;
 import ru.shatskikh.utils.PermissionInspector;
 
@@ -38,8 +38,7 @@ public class SubjectService {
 
         for(Subject subject: subjects){
 
-            dtos.add(subjectMapper.convertToSubjectResponseDto(subject));
-
+            dtos.add(subjectMapper.toResponse(subject));
         }
 
         return dtos;
@@ -47,14 +46,15 @@ public class SubjectService {
     }
 
     @Transactional
-    public SubjectResponseDto save(SubjectRequestDto dto, Long groupId) throws EntityNotFoundException, DataIntegrityViolationException {
+    public SubjectResponseDto save(SubjectRequestDto dto, Long groupId)
+            throws EntityNotFoundException, DataIntegrityViolationException {
 
         Group group = groupRepository.findById(groupId)
                 .orElseThrow(() -> new EntityNotFoundException("Группа не найдена"));
 
-        Subject subject = Subject.builder().name(dto.name()).group(group).build();
+        Subject subject = subjectMapper.toEntity(dto, groupId);
 
-        return subjectMapper.convertToSubjectResponseDto(subjectRepository.save(subject));
+        return subjectMapper.toResponse(subjectRepository.save(subject));
 
     }
 
@@ -70,7 +70,7 @@ public class SubjectService {
 
         subject.setName(dto.name());
 
-        return subjectMapper.convertToSubjectResponseDto(subjectRepository.save(subject));
+        return subjectMapper.toResponse(subjectRepository.save(subject));
 
     }
 

@@ -8,6 +8,7 @@ import ru.shatskikh.entity.enums.UserRole;
 import ru.shatskikh.entity.enums.UserState;
 import ru.shatskikh.node.service.commands.BotCommand;
 import ru.shatskikh.node.utils.MessageSender;
+import ru.shatskikh.repository.AppUserRepository;
 
 
 @Component
@@ -15,6 +16,7 @@ import ru.shatskikh.node.utils.MessageSender;
 public class CancelCommand implements BotCommand {
 
     private final MessageSender messageSender;
+    private final AppUserRepository appUserRepository;
 
     @Override
     public String getCommandIdentifier() {
@@ -34,6 +36,8 @@ public class CancelCommand implements BotCommand {
 
         user.setUserState(UserState.IDLE);
         user.setTempData(null);
+
+        appUserRepository.save(user);
 
         messageSender.sendAnswer("Действие успешно отменено!", chaId);
 

@@ -1,8 +1,8 @@
 package ru.shatskikh.node.utils.enums;
 
 public enum Buttons {
-    APPROVE_USER("approve_user"),
-    DECLINE_USER("decline_user");
+    APPROVE_USER("registration_approve_user"),
+    DECLINE_USER("registration_decline_user");
 
     final String value;
 

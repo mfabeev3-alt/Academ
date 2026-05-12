@@ -8,6 +8,8 @@ import ru.shatskikh.entity.enums.DayOfWeek;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.HashSet;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -56,5 +58,12 @@ public class Schedule {
     @Column(name = "moved_date")
     private LocalDate movedDate;
 
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(
+            name = "schedule_item_week",
+            joinColumns = @JoinColumn(name = "schedule_item_id")
+    )
+    @Column(name = "week_number")
+    private Set<Integer> activeWeeks = new HashSet<>();
 
 }

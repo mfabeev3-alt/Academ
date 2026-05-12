@@ -26,7 +26,6 @@ public class SetRoleStateHandler implements StateHandler {
         return UserState.AWAITING_USER_FOR_ROLE;
     }
 
-
     @Override
     public void handle(Update update, AppUser moderator) {
         var message = update.getMessage();
@@ -49,7 +48,8 @@ public class SetRoleStateHandler implements StateHandler {
             try {
 
             targetUserId = appUserRepository.findByUsername(username)
-                    .map(AppUser::getTelegramUserId).orElseThrow(() -> new UserNotFoundException("User not found!"));
+                    .map(AppUser::getTelegramUserId).orElseThrow(() ->
+                            new UserNotFoundException("Пользователь не найден!"));
 
             } catch (UserNotFoundException ex) {
 
@@ -70,7 +70,6 @@ public class SetRoleStateHandler implements StateHandler {
             messageSender.sendAnswer("Неверный формат! Отправьте @username, контакт или перешлите сообщение", chatId);
             return;
         }
-
 
         String roleStr = moderator.getTempData();
         UserRole role = UserRole.valueOf(roleStr);

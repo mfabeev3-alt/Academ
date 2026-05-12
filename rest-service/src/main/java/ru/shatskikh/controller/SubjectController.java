@@ -66,7 +66,6 @@ public class SubjectController {
         return ResponseEntity.noContent().build();
     }
 
-
     @GetMapping()
     public ResponseEntity<List<SubjectResponseDto>> index(@RequestHeader("Authorization") String authHeader) {
 
@@ -75,8 +74,6 @@ public class SubjectController {
 
         return ResponseEntity.ok(subjectService.findAll(groupId));
     }
-
-
 
 
 }

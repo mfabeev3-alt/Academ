@@ -1,20 +1,23 @@
 package ru.shatskikh.exceptions;
 
 import io.jsonwebtoken.ExpiredJwtException;
-import lombok.extern.slf4j.Slf4j;
+import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import ru.shatskikh.entity.exceptions.EntityNotCreatedException;
 import ru.shatskikh.entity.exceptions.EntityNotFoundException;
+import ru.shatskikh.entity.exceptions.ScheduleConflictException;
 
 import java.nio.file.AccessDeniedException;
 import java.security.SignatureException;
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -23,18 +26,27 @@ import java.util.Map;
 public class GlobalExceptionHandler {
 
 
+    @ExceptionHandler(ScheduleConflictException.class)
+    public ResponseEntity<Map<String, Object>> handleScheduleConflict(
+            ScheduleConflictException ex) {
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(Map.of(
+                        "timestamp", LocalDateTime.now(),
+                        "message", ex.getMessage()
+                ));
+
+    }
+
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<Map<String, Object>> handleAccessDeniedException(
             AccessDeniedException ex) {
-
 
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
                 .body(Map.of(
 
                         "timestamp", LocalDateTime.now(),
-                        "status", 403,
-                        "error", "Forbidden",
                         "message", ex.getMessage()
                 ));
 
@@ -58,7 +70,6 @@ public class GlobalExceptionHandler {
         });
 
         errors.put("timestamp", LocalDateTime.now());
-        errors.put("status", 400);
         errors.put("error", "Invalid data");
 
         return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
@@ -74,8 +85,6 @@ public class GlobalExceptionHandler {
                 .body(Map.of(
 
                         "timestamp", LocalDateTime.now(),
-                        "status", 400,
-                        "error", "Not created",
                         "message", ex.getMessage()
                 ));
 
@@ -90,10 +99,7 @@ public class GlobalExceptionHandler {
                 .body(Map.of(
 
                         "timestamp", LocalDateTime.now(),
-                        "status", 404,
-                        "error", "Not Found",
                         "message", ex.getMessage()
-
                 ));
 
     }
@@ -104,10 +110,7 @@ public class GlobalExceptionHandler {
                 .status(HttpStatus.UNAUTHORIZED)
                 .body(Map.of(
                         "timestamp", LocalDateTime.now(),
-                        "status", 401,
-                        "error", "Unauthorized",
                         "message", "Срок действия токена истёк, пожалуйста, авторизуйтесь заново."
-
                 ));
 
     }
@@ -119,8 +122,6 @@ public class GlobalExceptionHandler {
                 .status(HttpStatus.FORBIDDEN)
                 .body(Map.of(
                         "timestamp", LocalDateTime.now(),
-                        "status", 403,
-                        "error", "Forbidden",
                         "message", "Недействительный токен доступа."
                 ));
     }
@@ -153,7 +154,7 @@ public class GlobalExceptionHandler {
 
                 return ResponseEntity
                         .status(HttpStatus.CONFLICT)
-                        .body("Вы не можете удалить предмет, пока с ним есть поля в расписании");
+                        .body("Вы не можете удалить предмет, пока с ним есть поля в расписании.");
 
             }
 
@@ -161,10 +162,9 @@ public class GlobalExceptionHandler {
 
                 return ResponseEntity
                         .status(HttpStatus.CONFLICT)
-                        .body("Вы не можете удалить преподавателя, пока с ним есть поля в расписании");
+                        .body("Вы не можете удалить преподавателя, пока с ним есть поля в расписании.");
 
             }
-
 
         }
 
@@ -173,5 +173,31 @@ public class GlobalExceptionHandler {
                 .body("Ошибка целостности данных: нарушено ограничение уникальности.");
 
     }
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<Map<String, Object>> handleNotReadableException(HttpMessageNotReadableException ex) {
+
+        Map<String, Object> body = new HashMap<>();
+        body.put("timestamp", LocalDateTime.now());
+
+        String errorMessage = "Ошибка в формате JSON";
+        if (ex.getCause() instanceof InvalidFormatException invalidEx) {
+            if (invalidEx.getTargetType().isEnum()) {
+
+                errorMessage = String.format("Недопустимое значение '%s'. Допустимые значениея: %s",
+                        invalidEx.getValue(), Arrays.toString(invalidEx.getTargetType().getEnumConstants()));
+
+            }
+
+        } else {
+            errorMessage = ex.getLocalizedMessage();
+        }
+
+        body.put("message", errorMessage);
+
+        return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
+
+    }
+
 
 }

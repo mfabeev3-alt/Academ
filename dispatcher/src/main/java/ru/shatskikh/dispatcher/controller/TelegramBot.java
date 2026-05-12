@@ -6,6 +6,7 @@ import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
+import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
@@ -34,12 +35,12 @@ public class TelegramBot extends TelegramLongPollingBot {
         rabbitTemplate.convertAndSend("callback_update", update);
     }
 
-    public void sendAnswerMessage(SendMessage message) {
+    public void sendAnswerMessage(BotApiMethod<?> message) {
         if (message != null) {
             try {
                 execute(message);
             } catch (TelegramApiException e) {
-                log.error("Ошибка при физической отправке: " + e.getMessage() + " " + message.getChatId());
+                log.error("Ошибка при физической отправке: " + e.getMessage());
 
             }
         }

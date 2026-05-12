@@ -2,7 +2,6 @@ package ru.shatskikh.node.service.impl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.User;
 import ru.shatskikh.entity.AppDocument;
@@ -16,7 +15,7 @@ import ru.shatskikh.node.service.ProducerService;
 import ru.shatskikh.node.service.commands.dispatcherImpl.CallbackDispatcher;
 import ru.shatskikh.node.service.commands.dispatcherImpl.CommandDispatcher;
 import ru.shatskikh.node.service.commands.dispatcherImpl.StateDispatcher;
-import ru.shatskikh.node.service.commands.service.RegistrationService;
+import ru.shatskikh.node.utils.MenuCommandMapper;
 import ru.shatskikh.node.utils.MessageSender;
 import ru.shatskikh.repository.AppUserRepository;
 
@@ -24,7 +23,6 @@ import java.util.Optional;
 
 import static ru.shatskikh.entity.enums.UserRole.*;
 import static ru.shatskikh.entity.enums.UserState.IDLE;
-import static ru.shatskikh.node.service.enums.ServiceCommands.*;
 
 @Service
 @Slf4j
@@ -40,7 +38,7 @@ public class MainServiceImpl implements MainService {
     private final CommandDispatcher commandDispatcher;
     private final CallbackDispatcher callbackDispatcher;
     private final StateDispatcher stateDispatcher;
-
+    private final MenuCommandMapper menuCommandMapper;
 
     @Override
     public void processTextMessage(Update update) {
@@ -50,19 +48,17 @@ public class MainServiceImpl implements MainService {
         var message = update.getMessage();
         var text = message.getText();
         var chatId = message.getChatId();
-
         var user = findOrSaveAppUser(update);
 
+        String processedText = menuCommandMapper.map(text);
 
-        if (text != null && text.startsWith("/")) {
+        if (processedText != null && processedText.startsWith("/")) {
             commandDispatcher.dispatch(update, user);
             return;
         }
 
         if(user.getUserState() != IDLE){
-
             stateDispatcher.dispatch(update, user);
-
         }
 
     }
@@ -110,34 +106,8 @@ public class MainServiceImpl implements MainService {
             answer = "Smth went wrong";
         }
 
-        sendAnswer(answer, chatId);
     }
 
-
-    private void sendAnswer(String output, Long chatId) {
-        var sendMessage = new SendMessage();
-        sendMessage.setChatId(chatId);
-        sendMessage.setText(output);
-        producerService.produceAnswer(sendMessage);
-    }
-
-    private String processServiceCommand(AppUser appUser, String cmd) {
-
-        if(REGISTRATION.equals(cmd)){
-            //TODO add registration
-
-
-
-            return "Temporary unenabled ";
-        } else if(HELP.equals(cmd)) {
-            return help();
-        } else if(START.equals(cmd)) {
-            return "Greetings! Type /help to watch command list";
-        }   else {
-            return "Unknown command! Type /help to watch command list";
-        }
-
-    }
 
     private String help() {
             return "List of command:\n"

@@ -10,18 +10,13 @@ import ru.shatskikh.entity.AppUser;
 import ru.shatskikh.entity.Faculty;
 import ru.shatskikh.entity.enums.Course;
 import ru.shatskikh.entity.enums.UserState;
-import ru.shatskikh.node.exceptions.FacultyNotFoundException;
 import ru.shatskikh.node.service.commands.CallbackHandler;
 import ru.shatskikh.node.utils.MessageSender;
 import ru.shatskikh.repository.AppUserRepository;
 import ru.shatskikh.repository.FacultyRepository;
 
-import javax.swing.text.html.Option;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Component

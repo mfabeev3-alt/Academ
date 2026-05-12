@@ -39,10 +39,18 @@ public class RegisterCommand implements BotCommand {
 
      var msg = update.getMessage();
      var chatId = msg.getChatId();
-     user.setUserState(UserState.AWAITING_FIO);
+
+     if(user.getUserRole() == UserRole.ROLE_GUEST) {
+
+     user.setUserState(UserState.AWAITING_REGISTRATION);
+     user.setTempData("awaiting_fio");
      appUserRepository.save(user);
 
-    messageSender.sendAnswer("Введите свои ФИО, как показано в примере: \n\nИванов Иван Иванович", chatId);
+     messageSender.sendAnswer("Введите свои ФИО, как показано в примере: \n\nИванов Иван Иванович", chatId);
+
+     } else {
+         messageSender.sendAnswer("Вы уже зарегистрированы!", chatId);
+     }
 
     }
 }

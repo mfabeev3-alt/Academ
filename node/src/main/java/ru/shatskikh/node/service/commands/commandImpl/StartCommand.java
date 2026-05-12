@@ -17,8 +17,8 @@ public class StartCommand implements BotCommand {
     private final AppUserRepository appUserRepository;
     private final MessageSender messageSender;
 
-    private String START_MESSAGE = "Hello! This is Academ bot! \n\n " +
-            "To get access to bot's functions type /registration";
+    private String START_MESSAGE = "Привет! Это AcademBot!\n\n" +
+            "Чтобы получить доступ к функциям бота, напишите /registration";
 
 
     @Autowired
@@ -45,7 +45,7 @@ public class StartCommand implements BotCommand {
 
 
         if (user.getFio() != null) {
-            messageSender.sendAnswer("Welcome back " + user.getFio() + "!", chatId);
+            messageSender.sendAnswer("Добро пожаловать, " + user.getFio() + "!", chatId);
         } else {
             messageSender.sendAnswer(START_MESSAGE, chatId);
 
