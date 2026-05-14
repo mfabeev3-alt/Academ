@@ -10,6 +10,7 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMa
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
 import ru.shatskikh.entity.AppUser;
+import ru.shatskikh.entity.enums.UserRole;
 import ru.shatskikh.entity.enums.UserState;
 import ru.shatskikh.entity.exceptions.EntityNotFoundException;
 import ru.shatskikh.node.service.commands.CallbackHandler;
@@ -75,6 +76,10 @@ public class RegistrationCallbackHandler implements CallbackHandler {
 
                 keyboardMarkup.setKeyboard(keyboard);
 
+                approvedStudent.setUserState(UserState.IDLE);
+                approvedStudent.setUserRole(UserRole.ROLE_STUDENT);
+                approvedStudent.setTempData(null);
+                appUserRepository.save(approvedStudent);
 
                 String outputForStudent = "Регистрация прошла успешно! Теперь вы можете пользоваться меню.";
                 messageSender.sendAnswerWithKeyboard(outputForStudent, approvedStudentId, keyboardMarkup);

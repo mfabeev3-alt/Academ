@@ -24,25 +24,30 @@ public class JwtAuthentificationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
+        String authHeader = request.getHeader("Authorization");
 
-        final String authHeader = request.getHeader("Authorization");
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            String token = authHeader.substring(7);
 
-        if(authHeader == null || !authHeader.startsWith("Bearer ")) {
+            Long tgId = jwtService.getTelegramUserIdFromToken(token);
+            Long groupId = jwtService.getGroupIdFromToken(token);
 
-            filterChain.doFilter(request, response);
-            return;
+            if (tgId != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                CustomUserDetails principal = CustomUserDetails.builder()
+                        .telegramUserId(tgId)
+                        .groupId(groupId)
+                        .build();
+
+                UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
+                        principal, null, principal.getAuthorities()
+                );
+
+                // Устанавливаем пользователя в контекст
+                SecurityContextHolder.getContext().setAuthentication(authToken);
+            }
+
 
         }
-
-        final String jwt = authHeader.substring(7);
-        Long groupId = jwtService.getGroupIdFromToken(jwt);
-
-        UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-          new CustomUserDetails(groupId),
-          null, null
-        );
-
-        SecurityContextHolder.getContext().setAuthentication(authToken);
 
         filterChain.doFilter(request, response);
 

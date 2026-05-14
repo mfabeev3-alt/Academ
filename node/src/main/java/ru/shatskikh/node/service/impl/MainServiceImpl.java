@@ -52,6 +52,8 @@ public class MainServiceImpl implements MainService {
 
         String processedText = menuCommandMapper.map(text);
 
+        log.info("Текст команды: " + processedText);
+
         if (processedText != null && processedText.startsWith("/")) {
             commandDispatcher.dispatch(update, user);
             return;

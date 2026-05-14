@@ -61,6 +61,7 @@ public class ScheduleService {
         return toDtos(items);
     }
 
+
     @Transactional
     public ScheduleResponseDto save(ScheduleRequestDto dto, Long groupId)
             throws EntityNotFoundException, DataIntegrityViolationException, ScheduleConflictException{
@@ -100,9 +101,18 @@ public class ScheduleService {
       Schedule item = scheduleRepository.findById(scheduleItemId)
                 .orElseThrow(() -> new EntityNotFoundException("Запись не найдена."));
 
-        if (permissionInspector.isPermitted(groupId, item.getGroup().getId()))
+        if (!permissionInspector.isPermitted(groupId, item.getGroup().getId())) {
+            throw new AccessDeniedException("Вы не можете редактировать чужую запись!");
+        }
 
             scheduleRepository.deleteById(scheduleItemId);
+
+    }
+
+    @Transactional
+    public void deleteAllSchedule(Long groupId) throws AccessDeniedException{
+
+        scheduleRepository.deleteByGroupId(groupId);
 
     }
 

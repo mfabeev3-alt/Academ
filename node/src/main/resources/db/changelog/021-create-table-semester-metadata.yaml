@@ -1,0 +1,35 @@
+databaseChangeLog:
+  - changeSet:
+      id: 021-create-table-semester-metadata
+      author: shatskikh
+      changes:
+        - createTable:
+            tableName: semester_metadata
+            columns:
+              - column:
+                  name: id
+                  type: BIGSERIAL
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: start_date
+                  type: DATE
+                  constraints:
+                    nullable: false
+                  remarks: "Понедельник первой учебной недели"
+              - column:
+                  name: description
+                  type: VARCHAR(255)
+                  remarks: "Название семестра, например: Осенний 2026"
+              - column:
+                  name: is_active
+                  type: BOOLEAN
+                  defaultValueBoolean: false
+                  constraints:
+                    nullable: false
+              - column:
+                  name: parity_offset
+                  type: INT
+                  defaultValueNumeric: 0
+                  remarks: "Сдвиг четности, если семестр начинается не с 1-й недели"

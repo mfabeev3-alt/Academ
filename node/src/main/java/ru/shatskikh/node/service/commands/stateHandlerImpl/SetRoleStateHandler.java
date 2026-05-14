@@ -4,14 +4,22 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
 import ru.shatskikh.entity.AppUser;
+import ru.shatskikh.entity.Group;
 import ru.shatskikh.entity.enums.UserRole;
 import ru.shatskikh.entity.enums.UserState;
+import ru.shatskikh.entity.exceptions.EntityNotFoundException;
 import ru.shatskikh.node.exceptions.UserNotFoundException;
 import ru.shatskikh.node.service.commands.StateHandler;
 import ru.shatskikh.node.utils.MessageSender;
 import ru.shatskikh.repository.AppUserRepository;
+import ru.shatskikh.repository.GroupRepository;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 @Component
 @Slf4j
@@ -20,6 +28,7 @@ public class SetRoleStateHandler implements StateHandler {
 
     private final MessageSender messageSender;
     private final AppUserRepository appUserRepository;
+    private final GroupRepository groupRepository;
 
     @Override
     public UserState getSupportedState() {
@@ -27,33 +36,29 @@ public class SetRoleStateHandler implements StateHandler {
     }
 
     @Override
-    public void handle(Update update, AppUser moderator) {
+    public void handle(Update update, AppUser admin) {
+
         var message = update.getMessage();
-        var chatId = moderator.getTelegramUserId();
+        var chatId = admin.getTelegramUserId();
 
         Long targetUserId = null;
-        //check what moderator sent
+        //check what admin sent
 
         if(message.hasText() && message.getForwardFrom() == null) {
 
-            var username = message.getText();
+            var text = message.getText();
 
-            if(!username.startsWith("@")) {
-                messageSender.sendAnswer("Введите username в формате @username", chatId);
-                return;
-            }
-
-            username = username.substring(1);
+            String username = text.startsWith("@") ? text.substring(1) : text;
 
             try {
 
             targetUserId = appUserRepository.findByUsername(username)
                     .map(AppUser::getTelegramUserId).orElseThrow(() ->
-                            new UserNotFoundException("Пользователь не найден!"));
+                            new UserNotFoundException("❌ Пользователь не найден!"));
 
             } catch (UserNotFoundException ex) {
 
-                messageSender.sendAnswer("Неверный @username!", chatId);
+                messageSender.sendAnswer("❌ Неверный @username!", chatId);
                 log.debug(ex.getMessage());
                 return;
             }
@@ -67,26 +72,49 @@ public class SetRoleStateHandler implements StateHandler {
             targetUserId = message.getForwardFrom().getId();
 
         } else {
-            messageSender.sendAnswer("Неверный формат! Отправьте @username, контакт или перешлите сообщение", chatId);
+            messageSender.sendAnswer("❌ Неверный формат! Отправьте @username, контакт или перешлите сообщение.", chatId);
             return;
         }
 
-        String roleStr = moderator.getTempData();
-        UserRole role = UserRole.valueOf(roleStr);
+        String groupId = admin.getTempData();
+
+        Group group = groupRepository.findById(Long.valueOf(groupId)).orElseThrow(()-> new EntityNotFoundException("Группа не найдена!"));
 
         appUserRepository.findAppUserByTelegramUserId(targetUserId).ifPresentOrElse(
                 targetUser -> {
-                    targetUser.setUserRole(role);
+                    targetUser.setUserRole(UserRole.ROLE_LEADER);
+                    targetUser.setGroup(group);
                    appUserRepository.save(targetUser);
 
-                   moderator.setUserState(UserState.IDLE);
-                   moderator.setTempData(null);
-                   appUserRepository.save(moderator);
+                   admin.setUserState(UserState.IDLE);
+                   admin.setTempData(null);
+                   appUserRepository.save(admin);
                    messageSender.sendAnswer(
-                           String.format("Успешно! Пользователю @%s присвоена роль: %s", targetUser.getUsername(), role.toString()),
+                           String.format("✅ Успешно! Пользователю @%s присвоена роль старосты!", targetUser.getUsername()),
                            chatId);
 
-                   messageSender.sendAnswer("Вам присвоина роль " + role.toString() + "!", targetUser.getTelegramUserId());
+                       ReplyKeyboardMarkup keyboardMarkup = new ReplyKeyboardMarkup();
+                       keyboardMarkup.setSelective(true);
+                       keyboardMarkup.setResizeKeyboard(true);
+                       keyboardMarkup.setOneTimeKeyboard(false);
+
+                       List<KeyboardRow> keyboard = new ArrayList<>();
+
+                       KeyboardRow row1 = new KeyboardRow();
+                       row1.add("Какая сейчас пара?");
+
+                       KeyboardRow row2 = new KeyboardRow();
+                       row2.add("Расписание на неделю");
+
+                       keyboard.add(row1);
+                       keyboard.add(row2);
+
+                       keyboardMarkup.setKeyboard(keyboard);
+
+                       messageSender.sendAnswerWithKeyboard(
+                               "✅ Вам присвоена роль старосты!", targetUser.getTelegramUserId(), keyboardMarkup);
+
+
 
                 },
                 () -> messageSender.sendAnswer("Пользователь не найден в базе данных!", chatId)

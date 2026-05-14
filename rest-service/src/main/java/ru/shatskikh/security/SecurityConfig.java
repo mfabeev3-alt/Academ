@@ -25,9 +25,10 @@ public class SecurityConfig {
                 http
                         .csrf(csrf -> csrf.disable())
                         .authorizeHttpRequests(auth -> auth
-                                //.requestMatchers("/api/v1/auth/telegram").permitAll()
-                                .anyRequest().authenticated())
-                        //.exceptionHandling(exception -> exception.authenticationEntryPoint(customAuthenticationEntryPoint))
+                                .anyRequest().permitAll())
+//                                .requestMatchers("/v2/api-docs").permitAll()//todo
+//                                .anyRequest().authenticated())
+                        .exceptionHandling(exception -> exception.authenticationEntryPoint(customAuthenticationEntryPoint))
                         .sessionManagement(session -> session
                                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                         .addFilterBefore(jwtAuthentificationFilter, UsernamePasswordAuthenticationFilter.class);

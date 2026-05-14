@@ -24,7 +24,6 @@ public class RootCommand implements BotCommand {
         this.messageSender = messageSender;
     }
 
-
     @Override
     public String getCommandIdentifier() {
         return "/iamroot";

@@ -15,8 +15,15 @@ import java.util.Optional;
 @Repository
 @Component
 public interface AppUserRepository extends JpaRepository <AppUser, Long> {
+
     Optional<AppUser> findAppUserByTelegramUserId(Long id);
+
     List<AppUser> findAppUserByUserRoleAndGroup(UserRole userRole, Group group);
     Optional<AppUser> findByUsername(String username);
-    List<AppUser> findAllByGroup_CourseAndGroup_Faculty(Course course, Faculty faculty);
+
+    List<AppUser> findAllByGroup_EntryYearAndGroup_Faculty(int group_entryYear, Faculty group_faculty);
+
+
+    List<AppUser> findByUserRoleIn(List<UserRole> roles);
+
 }

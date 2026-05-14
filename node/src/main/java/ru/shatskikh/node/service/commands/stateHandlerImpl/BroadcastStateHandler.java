@@ -13,8 +13,9 @@ import ru.shatskikh.node.utils.MessageSender;
 import ru.shatskikh.repository.AppUserRepository;
 import ru.shatskikh.repository.FacultyRepository;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
@@ -40,14 +41,14 @@ public class BroadcastStateHandler implements StateHandler {
         var tempData = moderator.getTempData();
 
         if(tempData == null || !tempData.startsWith("READY_")){
-            messageSender.sendAnswer("Ошибка в последовательности действий.", chatId);
+            messageSender.sendAnswer("❌ Ошибка в последовательности действий.", chatId);
             return;
         }
 
             String [] parts = tempData.split("_");
 
         if (parts.length < 3) {
-            messageSender.sendAnswer("Ошибка: повреждены временные данные", chatId);
+            messageSender.sendAnswer("❌ Ошибка: повреждены временные данные", chatId);
             return;
         }
 
@@ -58,8 +59,20 @@ public class BroadcastStateHandler implements StateHandler {
             Faculty targetFaculty = facultyRepository.findById(facultyId).orElseThrow(FacultyNotFoundException::new);
 
 
-            List<AppUser> recipients = appUserRepository.findAllByGroup_CourseAndGroup_Faculty(
-                    targetCourse, targetFaculty);
+            LocalDate now = LocalDate.now();
+            int currentYear = now.getYear();
+            int entryYear;
+
+            if (now.getMonthValue() >= 9) {
+
+                entryYear = currentYear - (targetCourse.getValue() - 1);
+            } else {
+
+                entryYear = currentYear - targetCourse.getValue();
+            }
+
+            List<AppUser> recipients = appUserRepository.findAllByGroup_EntryYearAndGroup_Faculty(
+                   entryYear, targetFaculty);
 
             for (AppUser recipient : recipients) {
 
@@ -71,13 +84,13 @@ public class BroadcastStateHandler implements StateHandler {
             moderator.setUserState(UserState.IDLE);
             appUserRepository.save(moderator);
 
-            messageSender.sendAnswer("Расскалка успешно завершена!", chatId);
+            messageSender.sendAnswer("\uD83C\uDF89 Расскалка успешно завершена!", chatId);
 
         } catch (NumberFormatException e) {
 
-            messageSender.sendAnswer("Ошибка: Неверный формат числа во временных данных", chatId);
+            messageSender.sendAnswer("❌ Ошибка: Неверный формат числа во временных данных", chatId);
         } catch (FacultyNotFoundException e) {
-            messageSender.sendAnswer("Ошибка: Неверный факультет!", chatId);
+            messageSender.sendAnswer("❌ Ошибка: Неверный факультет!", chatId);
         }
 
     }

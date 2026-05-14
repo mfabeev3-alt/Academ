@@ -1,0 +1,20 @@
+databaseChangeLog:
+  - changeSet:
+      id: 20260513-replace-course-with-entry-year
+      author: saveliy shatskikh
+      changes:
+        # 1. Добавляем колонку год поступления
+        - addColumn:
+            tableName: app_group
+            columns:
+              - column:
+                  name: entry_year
+                  type: int
+                  constraints:
+                    nullable: false
+                  # Укажи текущий год как дефолтный, чтобы не было ошибок со старыми записями
+
+        # 2. Удаляем старую колонку с перечислением (enum)
+        - dropColumn:
+            tableName: app_group
+            columnName: course

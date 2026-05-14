@@ -1,13 +1,13 @@
 package ru.shatskikh.entity.enums;
 
 public enum DayOfWeek {
-    MONDAY("Monday"),
-    TUESDAY("Tuesday"),
-    WEDNESDAY("Wednesday"),
-    THURSDAY("Thursday"),
-    FRIDAY("Friday"),
-    SATURDAY("Saturday"),
-    SUNDAY("Sunday");
+    MONDAY("Понедельник"),
+    TUESDAY("Вторник"),
+    WEDNESDAY("Среда"),
+    THURSDAY("Четверг"),
+    FRIDAY("Пятница"),
+    SATURDAY("Суббота"),
+    SUNDAY("Воскресенье");
 
     private String description;
 
@@ -15,7 +15,10 @@ public enum DayOfWeek {
         this.description = description;
     }
 
-    DayOfWeek fromValue(String day){
+    public static DayOfWeek of(java.time.DayOfWeek javaDay) {
+        return DayOfWeek.valueOf(javaDay.name());
+    }
+    public static DayOfWeek fromValue(String day){
 
         for(DayOfWeek dayOfWeek: values()) {
 

@@ -16,7 +16,6 @@ public record ScheduleResponseDto(
         DayOfWeek dayOfWeek,
         LocalTime startTime,
         LocalTime endTime,
-        Set<Integer> activeWeeks,
-        boolean isMoved,
-        LocalDate movedDate
+        Set<Integer> activeWeeks
+
 ) {}

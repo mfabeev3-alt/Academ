@@ -7,6 +7,7 @@ import ru.shatskikh.entity.Schedule.Professor;
 import ru.shatskikh.entity.Schedule.Subject;
 import ru.shatskikh.entity.enums.Course;
 
+import java.time.LocalDate;
 import java.util.List;
 
 
@@ -23,10 +24,11 @@ public class Group {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = "name")
     private String name;
 
-    @Enumerated(EnumType.STRING)
-    private Course course;
+    @Column(name = "entry_year", nullable = false)
+    private int entryYear;
 
     @OneToMany(mappedBy = "group")
     private List<AppUser> students;
@@ -41,6 +43,16 @@ public class Group {
     @JoinColumn(name = "faculty_id")
     Faculty faculty;
 
+    public Course getCourse() {
 
+        LocalDate now = LocalDate.now();
+        int course = now.getYear() - entryYear;
+
+        if(now.getMonthValue() >= 9) {
+            course++;
+        }
+
+        return Course.fromValue(course);
+    }
 
 }

@@ -1,5 +1,6 @@
 package ru.shatskikh.node.service.commands.dispatcherImpl;
 
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.Update;
@@ -7,6 +8,7 @@ import ru.shatskikh.entity.AppUser;
 import ru.shatskikh.node.service.commands.BotCommand;
 
 import ru.shatskikh.node.service.commands.Dispatcher;
+import ru.shatskikh.node.utils.MenuCommandMapper;
 import ru.shatskikh.node.utils.MessageSender;
 
 import java.util.List;
@@ -18,18 +20,21 @@ public class CommandDispatcher implements Dispatcher {
 
     private final Map<String, BotCommand> commands;
     private final MessageSender messageSender;
+    private final MenuCommandMapper menuCommandMapper;
 
     @Autowired
-    public CommandDispatcher(List<BotCommand> allCommands, MessageSender messageSender) {
+    public CommandDispatcher(List<BotCommand> allCommands, MessageSender messageSender, MenuCommandMapper menuCommandMapper) {
         this.commands = allCommands.stream()
                 .collect(Collectors.toMap(BotCommand::getCommandIdentifier,cmd -> cmd));
         this.messageSender = messageSender;
+        this.menuCommandMapper = menuCommandMapper;
     }
 
     @Override
     public void dispatch(Update update, AppUser user) {
 
         String text = update.getMessage().getText();
+        text = menuCommandMapper.map(text);
         Long chatId = update.getMessage().getChatId();
         String commandName = text.split(":")[0];
 

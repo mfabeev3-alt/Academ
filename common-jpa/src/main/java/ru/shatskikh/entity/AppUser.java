@@ -43,7 +43,7 @@ public class AppUser {
 
     private String tempData;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "group_id") //Имя колонки в таблице app_user, хранящая ссылку на таблицу с группами
     private Group group;
 

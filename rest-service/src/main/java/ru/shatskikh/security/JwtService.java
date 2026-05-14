@@ -1,5 +1,6 @@
 package ru.shatskikh.security;
 
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
@@ -21,27 +22,37 @@ public class JwtService {
         return Keys.hmacShaKeyFor(keyBytes);
     }
 
-    public String generateToken(Long groupId, Long telegramUserId) {
+    private static final long EXPIRATION_TIME = 1000L * 60 * 60 * 24 * 7;
+
+    public String generateToken(Long telegramUserId, Long groupId) {
+        long now = System.currentTimeMillis();
 
         return Jwts.builder()
-                .subject(String.valueOf(telegramUserId))
+                .subject(String.valueOf(telegramUserId)) // Telegram ID — это основной субъект
                 .claim("groupId", groupId)
-                .issuedAt(new Date(System.currentTimeMillis()))
-                .expiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 24 * 7))
+                .issuedAt(new Date(now))
+                .expiration(new Date(now + EXPIRATION_TIME))
                 .signWith(getSigningKey())
                 .compact();
+    }
 
+    public Long getTelegramUserIdFromToken(String token) {
+        String subject = extractAllClaims(token).getSubject();
+        return Long.valueOf(subject);
     }
 
     public Long getGroupIdFromToken(String token) {
+        // Извлекаем как Number, чтобы не упасть с ClassCastException (Integer vs Long)
+        Number groupId = extractAllClaims(token).get("groupId", Number.class);
+        return groupId != null ? groupId.longValue() : null;
 
+    }
+    private Claims extractAllClaims(String token) {
         return Jwts.parser()
                 .verifyWith(getSigningKey())
                 .build()
                 .parseSignedClaims(token)
-                .getPayload()
-                .get("groupId", Long.class);
-
+                .getPayload();
     }
 
 }

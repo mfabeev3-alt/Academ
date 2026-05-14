@@ -10,11 +10,12 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import ru.shatskikh.entity.exceptions.AccessDeniedException;
 import ru.shatskikh.entity.exceptions.EntityNotCreatedException;
 import ru.shatskikh.entity.exceptions.EntityNotFoundException;
 import ru.shatskikh.entity.exceptions.ScheduleConflictException;
 
-import java.nio.file.AccessDeniedException;
+
 import java.security.SignatureException;
 import java.time.LocalDateTime;
 import java.util.Arrays;

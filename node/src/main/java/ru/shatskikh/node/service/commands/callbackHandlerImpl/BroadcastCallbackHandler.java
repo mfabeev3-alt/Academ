@@ -38,20 +38,21 @@ public class BroadcastCallbackHandler implements CallbackHandler {
         var query = update.getCallbackQuery();
         var data = query.getData();
         var chatId = query.getMessage().getChatId();
+        var messageId = query.getMessage().getMessageId();
 
         if(data.equals("bc_faculty")){
             user.setUserState(UserState.AWAITING_BROADCAST_CONTENT);
             user.setTempData("FACULTY_SELECT");
             appUserRepository.save(user);
 
-            sendFacultyList(chatId);
+            sendFacultyList(chatId, messageId);
         } else if (data.startsWith("bc_fac_")) {
             String facultyId = data.replace("bc_fac_","");
             
             user.setTempData("COURSE_SELECT_" + facultyId);
             appUserRepository.save(user);
             
-            sendCourseList(chatId, facultyId);
+            sendCourseList(chatId,messageId, facultyId);
         } else if (data.startsWith("bc_course_")) {
 
             String [] parts = data.replace("bc_course_","").split("_");
@@ -61,15 +62,13 @@ public class BroadcastCallbackHandler implements CallbackHandler {
             user.setTempData("READY_" + facultyId + "_" + courseValue);
             appUserRepository.save(user);
 
-            messageSender.sendAnswer("Отлично! Теперь отправьте текст рассылки:", chatId);
-
-            log.debug("Temp Data: " + user.getTempData());
+            messageSender.sendEditAnswer(chatId, messageId, "✅ Отлично! Теперь отправьте текст рассылки", null);
 
         }
 
     }
 
-    private void sendCourseList(Long chatId, String facultyId) {
+    private void sendCourseList(Long chatId, Integer messageId, String facultyId) {
 
         InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
         List<List<InlineKeyboardButton>> rows = new ArrayList<>();
@@ -86,11 +85,11 @@ public class BroadcastCallbackHandler implements CallbackHandler {
         }
 
         markup.setKeyboard(rows);
-        messageSender.sendAnswerWithKeyboard("Выберите факультет", chatId, markup);
+        messageSender.sendEditAnswer(chatId, messageId, "\uD83D\uDCA1 Выберите курс", markup);
 
     }
 
-    private void sendFacultyList(Long chatId) {
+    private void sendFacultyList(Long chatId, Integer messageId) {
 
       List<Faculty> faculties = facultyRepository.findAll();
         
@@ -109,9 +108,7 @@ public class BroadcastCallbackHandler implements CallbackHandler {
         }
 
         markup.setKeyboard(rows);
-        messageSender.sendAnswerWithKeyboard("Выберите факультет", chatId, markup);
-
+        messageSender.sendEditAnswer(chatId, messageId, "\uD83C\uDFDA Выберите факультет", markup);
     }
-
 
 }

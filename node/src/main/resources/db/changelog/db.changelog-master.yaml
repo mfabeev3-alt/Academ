@@ -37,3 +37,9 @@ databaseChangeLog:
       file: db/changelog/019-add-unique-constraint-subject.yaml
   - include:
       file: db/changelog/020-create-table-schedule-item-week.yaml
+  - include:
+      file: db/changelog/021-create-table-semester-metadata.yaml
+  - include:
+      file: db/changelog/022-replace-course-with-entry-year.yaml
+
+
