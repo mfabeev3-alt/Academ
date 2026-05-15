@@ -41,5 +41,7 @@ databaseChangeLog:
       file: db/changelog/021-create-table-semester-metadata.yaml
   - include:
       file: db/changelog/022-replace-course-with-entry-year.yaml
+  - include:
+      file: db/changelog/023-set-start-date.yaml
 
 

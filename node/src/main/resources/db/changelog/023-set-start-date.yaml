@@ -1,0 +1,20 @@
+databaseChangeLog:
+  - changeSet:
+      id: 20260515-insert-initial-semester
+      author: shatskikh
+      changes:
+        - insert:
+            tableName: semester_metadata
+            columns:
+              - column:
+                  name: start_date
+                  value: "2026-05-01"
+              - column:
+                  name: is_active
+                  valueBoolean: true
+              - column:
+                  name: description
+                  value: "Весенний семестр 2026"
+              - column:
+                  name: parity_offset
+                  valueNumeric: 0
