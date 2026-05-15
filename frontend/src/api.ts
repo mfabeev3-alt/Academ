@@ -3,7 +3,7 @@ import axios, { AxiosError } from 'axios';
 // Внимание: В реальном Telegram Mini App базовый URL будет вашим бекендом.
 // Для целей разработки мы используем переменную окружения или дефолтный localhost.
 // @ts-ignore
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8086';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://192.168.3.9:8086';
 
 const api = axios.create({
   baseURL: API_BASE_URL,
