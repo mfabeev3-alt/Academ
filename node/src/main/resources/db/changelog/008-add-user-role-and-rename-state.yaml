@@ -9,9 +9,8 @@ databaseChangeLog:
               - column:
                   name: user_role
                   type: varchar(50)
-
-        - renameColumn:
-            tableName: app_user
-            oldColumnName: state
-            newColumnName: user_state
-            columnDataType: varchar(255)
+              - column:
+                  name: user_state
+                  type: varchar(50)
+                  constraints:
+                    nullable: false
