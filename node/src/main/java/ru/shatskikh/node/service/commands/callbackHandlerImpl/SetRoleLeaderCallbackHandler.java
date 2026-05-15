@@ -35,7 +35,6 @@ public class SetRoleLeaderCallbackHandler implements CallbackHandler {
         messageSender.sendEditAnswer(chatId, messageId,
                 "✅ Теперь отправьте @username, контакт или перешлите сообщение пользователя," +
                         "которого вы хотите наделить правами старосты. ", null);
-
     }
 
     @Override

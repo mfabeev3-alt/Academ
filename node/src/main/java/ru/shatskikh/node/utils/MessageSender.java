@@ -2,11 +2,16 @@ package ru.shatskikh.node.utils;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+import org.telegram.telegrambots.meta.api.methods.commands.SetMyCommands;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
+import org.telegram.telegrambots.meta.api.objects.commands.scope.BotCommandScopeChat;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboard;
+import ru.shatskikh.model.MenuUpdateDto;
 import ru.shatskikh.node.service.ProducerService;
+import org.telegram.telegrambots.meta.api.objects.commands.BotCommand;
+import java.util.List;
 
 @Component
 @RequiredArgsConstructor
@@ -40,7 +45,24 @@ public class MessageSender {
                 .replyMarkup(markup)
                 .build();
 
-         producerService.produceAnswer(editMessageText);
+        producerService.produceAnswer(editMessageText);
+    }
+
+    public void setPersonalizedCommands(Long chatId, List<BotCommand> commands) {
+
+        BotCommandScopeChat scope = new BotCommandScopeChat();
+        scope.setChatId(chatId.toString());
+
+        SetMyCommands setMyCommands = new SetMyCommands(commands, scope, null);
+
+        producerService.produceAnswer(setMyCommands);
+
+    }
+
+    public void setMenu(MenuUpdateDto dto) {
+
+        producerService.produceWebApp(dto);
+
     }
 
 }

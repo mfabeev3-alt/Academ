@@ -11,6 +11,7 @@ import ru.shatskikh.entity.Group;
 import ru.shatskikh.entity.enums.UserRole;
 import ru.shatskikh.entity.enums.UserState;
 import ru.shatskikh.entity.exceptions.EntityNotFoundException;
+import ru.shatskikh.model.MenuUpdateDto;
 import ru.shatskikh.node.exceptions.UserNotFoundException;
 import ru.shatskikh.node.service.commands.StateHandler;
 import ru.shatskikh.node.utils.MessageSender;
@@ -19,7 +20,6 @@ import ru.shatskikh.repository.GroupRepository;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Component
 @Slf4j
@@ -111,10 +111,18 @@ public class SetRoleStateHandler implements StateHandler {
 
                        keyboardMarkup.setKeyboard(keyboard);
 
+
+                        MenuUpdateDto dto = new MenuUpdateDto(
+                            targetUser.getTelegramUserId(),
+                            "https://mfabeev3-alt.github.io/mfabeev3.github.io/",
+                            "Расписание"
+                        );
+
+                        log.info(dto.toString());
+
                        messageSender.sendAnswerWithKeyboard(
                                "✅ Вам присвоена роль старосты!", targetUser.getTelegramUserId(), keyboardMarkup);
-
-
+                        messageSender.setMenu(dto);
 
                 },
                 () -> messageSender.sendAnswer("Пользователь не найден в базе данных!", chatId)

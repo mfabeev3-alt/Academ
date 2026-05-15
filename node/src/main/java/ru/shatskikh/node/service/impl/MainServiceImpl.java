@@ -65,22 +65,6 @@ public class MainServiceImpl implements MainService {
 
     }
 
-    @Override
-    public void processPhotoMessage(Update update) {
-        saveRawData(update);
-
-        var message = update.getMessage();
-        var chatId = message.getChatId();
-        var appUser = findOrSaveAppUser(update);
-
-
-        //TODO Add doc saving
-
-        var answer = "Document was saved successfully! Link for downloading: ";
-
-        messageSender.sendAnswer(answer, chatId);
-
-    }
 
     @Override
     public void processCallbackQuery(Update update) {
@@ -88,41 +72,6 @@ public class MainServiceImpl implements MainService {
         var user = findOrSaveAppUser(update);
         callbackDispatcher.dispatch(update, user);
 
-    }
-
-
-    @Override
-    public void processDocMessage(Update update) {
-
-        saveRawData(update);
-        var message = update.getMessage();
-        var chatId = message.getChatId();
-        var appUser = findOrSaveAppUser(update);
-
-        AppDocument persistedAppDoc = fileService.processFile(message);
-
-        var answer ="";
-        if (persistedAppDoc != null) {
-            answer = "Document was saved successfully! Link for downloading: "; }
-        else {
-            answer = "Smth went wrong";
-        }
-
-    }
-
-
-    private String help() {
-            return "List of command:\n"
-                    + "/cancel – undoing previous command;\n"
-                    + "/registration – user registration.";
-    }
-
-
-    private String cancelProcess(AppUser appUser) {
-
-        appUser.setUserRole(ROLE_GUEST);
-        appUserRepository.save(appUser);
-        return "Command is canceled!";
     }
 
     private void saveRawData(Update update) {

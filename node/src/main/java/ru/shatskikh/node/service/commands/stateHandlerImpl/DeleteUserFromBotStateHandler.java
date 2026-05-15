@@ -3,9 +3,12 @@ package ru.shatskikh.node.service.commands.stateHandlerImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import org.telegram.telegrambots.meta.api.methods.menubutton.SetChatMenuButton;
 import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.api.objects.menubutton.MenuButtonDefault;
 import ru.shatskikh.entity.AppUser;
 import ru.shatskikh.entity.enums.UserState;
+import ru.shatskikh.model.MenuUpdateDto;
 import ru.shatskikh.node.exceptions.UserNotFoundException;
 import ru.shatskikh.node.service.commands.StateHandler;
 import ru.shatskikh.node.utils.MessageSender;
@@ -23,11 +26,11 @@ public class DeleteUserFromBotStateHandler implements StateHandler {
 
     @Override
     @Transactional
-    public void handle(Update update, AppUser moderator) {
+    public void handle(Update update, AppUser admin) {
 
 
         var message = update.getMessage();
-        var chatId = moderator.getTelegramUserId();
+        var chatId = admin.getTelegramUserId();
         Long targetUserId = null;
 
         if(message.hasText() && message.getForwardFrom() == null) {
@@ -69,19 +72,36 @@ public class DeleteUserFromBotStateHandler implements StateHandler {
         if (userOptional.isPresent()) {
             AppUser userToDelete = userOptional.get();
             String targetUsername = userToDelete.getUsername();
+            Long userId = userToDelete.getTelegramUserId();
+
+            SetChatMenuButton rollbackMethod = SetChatMenuButton.builder()
+                    .chatId(String.valueOf(userId))
+                    .menuButton(MenuButtonDefault.builder().build()) // Устанавливаем дефолтную кнопку
+                    .build();
 
             // 3. Удаляем пользователя
             appUserRepository.delete(userToDelete);
-            log.info("Модератор {} удалил пользователя @{}", moderator.getUsername(), targetUsername);
+            log.info("Модератор {} удалил пользователя @{}", admin.getUsername(), targetUsername);
 
             messageSender.sendAnswer("✅ Пользователь @" + targetUsername + " успешно удален из системы.", chatId);
+
+
+            MenuUpdateDto dto = new MenuUpdateDto(
+                    userId,
+                    null,
+                    null
+            );
+
+            messageSender.setMenu(dto);
+
+
         } else {
             messageSender.sendAnswer("❌ Пользователь  не найден в базе данных.", chatId);
         }
 
         // 4. Возвращаем модератора в дефолтное состояние
-        moderator.setUserState(UserState.IDLE);
-        appUserRepository.save(moderator);
+        admin.setUserState(UserState.IDLE);
+        appUserRepository.save(admin);
     }
 
     @Override

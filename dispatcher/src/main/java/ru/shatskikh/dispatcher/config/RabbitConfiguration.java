@@ -31,14 +31,10 @@ public class RabbitConfiguration {
     public org.springframework.amqp.core.Queue textMessageQueue() {
         return new org.springframework.amqp.core.Queue(TEXT_MESSAGE_UPDATE);
     }
-    @Bean
-    public org.springframework.amqp.core.Queue docMessageQueue() {
-        return new org.springframework.amqp.core.Queue(DOC_MESSAGE_UPDATE);
-    }
 
     @Bean
-    public org.springframework.amqp.core.Queue photoMessageQueue() {
-        return new org.springframework.amqp.core.Queue(PHOTO_MESSAGE_UPDATE);
+    public org.springframework.amqp.core.Queue textAnswerMessageWebAppQueue() {
+        return new org.springframework.amqp.core.Queue(ANSWER_MESSAGE_WEB_APP);
     }
 
     @Bean

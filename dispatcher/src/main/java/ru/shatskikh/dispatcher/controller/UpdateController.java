@@ -47,10 +47,6 @@ public class UpdateController {
 
         if (msg.hasText()) {
             processTextMessage(update);
-        } else if (msg.hasDocument()) {
-            processDocMessage(update);
-        } else if (msg.hasPhoto()) {
-            processPhotoMessage(update);
         } else  {
             setUnsupportedMessageTypeView(update);
         }
@@ -61,22 +57,14 @@ public class UpdateController {
         producer.produce(CALLBACK_QUERY_UPDATE, update);
     }
 
-    private void processPhotoMessage(Update update) {
-        producer.produce(PHOTO_MESSAGE_UPDATE, update);
-        setFileReceivedView(update);
-    }
 
-    private void processDocMessage(Update update) {
-        producer.produce(DOC_MESSAGE_UPDATE, update);
-        setFileReceivedView(update);
-    }
 
     private void processTextMessage(Update update) {
         producer.produce(TEXT_MESSAGE_UPDATE, update);
     }
 
     private void setUnsupportedMessageTypeView(Update update) {
-        var sendMessage = messageUtils.generateSendMessageWithText(update, "Unsupported type message!");
+        var sendMessage = messageUtils.generateSendMessageWithText(update, "Неподдерживаемый тип сообщения!");
         setView(sendMessage);
     }
 

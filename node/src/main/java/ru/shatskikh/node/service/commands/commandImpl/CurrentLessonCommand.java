@@ -49,6 +49,14 @@ public class CurrentLessonCommand implements BotCommand {
         Long groupId = user.getGroup().getId();
         Long chatId = update.getMessage().getChatId();
 
+        if(user.getGroup() == null){
+
+            messageSender.sendAnswer(
+                    "❌ Вы не можете посмотреть расписание, поскольку вы не приписаны ни к одной группе!", chatId);
+
+           return;
+        }
+
         log.info("Неделя: " + currentWeek + "; день: " + day.name() + "; время: " + now + "; ID группы: " + groupId);
 
         List<Schedule> remainingItems = scheduleRepository.findCurrentAndRemainingItems(groupId, day, now, currentWeek);

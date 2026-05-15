@@ -38,6 +38,13 @@ public class WeeklyScheduleCommand implements BotCommand {
         Long groupId = user.getGroup().getId();
         Long chatId = update.getMessage().getChatId();
 
+        if(user.getGroup() == null){
+
+            messageSender.sendAnswer(
+                    "❌ Вы не можете посмотреть расписание, поскольку вы не приписаны ни к одной группе!", chatId);
+
+            return;
+        }
 
         int currentWeek = weekService.getCurrentWeek();
         List<Schedule> schedule = scheduleRepository.findAllByGroupIdAndWeekNum(groupId, currentWeek);

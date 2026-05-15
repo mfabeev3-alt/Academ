@@ -5,10 +5,11 @@ import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
-import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import ru.shatskikh.model.MenuUpdateDto;
 import ru.shatskikh.node.service.ProducerService;
 
 import static ru.shatskikh.config.RabbitConfiguration.ANSWER_MESSAGE;
+import static ru.shatskikh.config.RabbitConfiguration.ANSWER_MESSAGE_WEB_APP;
 
 @Service
 public class ProducerServiceImpl implements ProducerService {
@@ -25,6 +26,9 @@ public class ProducerServiceImpl implements ProducerService {
     public void produceAnswer(BotApiMethod<?> message) {
         rabbitTemplate.convertAndSend(ANSWER_MESSAGE, message);
     }
+
+    @Override
+    public void produceWebApp(MenuUpdateDto dto) {rabbitTemplate.convertAndSend(ANSWER_MESSAGE_WEB_APP, dto);}
 
 
 }
