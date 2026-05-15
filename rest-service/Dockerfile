@@ -16,7 +16,7 @@ FROM eclipse-temurin:21-jdk
 WORKDIR /app
 
 # забираем готовый jar из сборки
-COPY --from=build /app/rest-service/target/*.jar app.jar
+COPY --from=builder /app/rest-service/target/*.jar app.jar
 
 EXPOSE 8086
 
