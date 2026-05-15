@@ -24,32 +24,39 @@ public class JwtAuthentificationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
+
+        if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         String authHeader = request.getHeader("Authorization");
 
-        if (authHeader != null && authHeader.startsWith("Bearer ")) {
-            String token = authHeader.substring(7);
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
 
-            Long tgId = jwtService.getTelegramUserIdFromToken(token);
-            Long groupId = jwtService.getGroupIdFromToken(token);
+        String token = authHeader.substring(7);
 
-            if (tgId != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-                CustomUserDetails principal = CustomUserDetails.builder()
-                        .telegramUserId(tgId)
-                        .groupId(groupId)
-                        .build();
+        Long tgId = jwtService.getTelegramUserIdFromToken(token);
+        Long groupId = jwtService.getGroupIdFromToken(token);
 
-                UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-                        principal, null, principal.getAuthorities()
-                );
+        if (tgId != null && SecurityContextHolder.getContext().getAuthentication() == null) {
 
-                // Устанавливаем пользователя в контекст
-                SecurityContextHolder.getContext().setAuthentication(authToken);
-            }
+            CustomUserDetails principal = CustomUserDetails.builder()
+                    .telegramUserId(tgId)
+                    .groupId(groupId)
+                    .build();
 
+            UsernamePasswordAuthenticationToken authToken =
+                    new UsernamePasswordAuthenticationToken(
+                            principal, null, principal.getAuthorities()
+                    );
 
+            SecurityContextHolder.getContext().setAuthentication(authToken);
         }
 
         filterChain.doFilter(request, response);
-
     }
 }
