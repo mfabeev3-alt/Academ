@@ -1,0 +1,8 @@
+{
+  "name": "Управление Расписанием",
+  "description": "Telegram Mini App для управления расписанием занятий, списком преподавателей и предметов.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
