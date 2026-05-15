@@ -23,6 +23,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/professor")
 @RequiredArgsConstructor
+@CrossOrigin(origins = "http://localhost:3000")
 public class ProfessorController {
 
     private final ProfessorService professorService;

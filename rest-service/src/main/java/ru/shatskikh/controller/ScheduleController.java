@@ -26,6 +26,7 @@ import java.util.List;
 @RequestMapping("/schedule")
 @RequiredArgsConstructor
 @Tag(name = "Расписание")
+@CrossOrigin(origins = "http://localhost:3000")
 public class ScheduleController {
 
     private final ScheduleService scheduleService;

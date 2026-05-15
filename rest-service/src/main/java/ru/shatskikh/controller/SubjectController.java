@@ -25,6 +25,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/subject")
 @RequiredArgsConstructor
+@CrossOrigin(origins = "http://localhost:3000")
 public class SubjectController {
 
     private final ErrorMessageBuilder errorMessageBuilder;

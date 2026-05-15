@@ -9,7 +9,7 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
     volumes:
-          - ./postgres_data:/var/lib/postgresql/data
+      - ./postgres_data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
     networks:
@@ -20,8 +20,8 @@ services:
     image: rabbitmq:3-management
     container_name: rabbitmq
     environment:
-      - RABBITMQ_DEFAULT_USER=guest
-      - RABBITMQ_DEFAULT_PASS=guest
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
     ports:
       - "5672:5672"
       - "15672:15672"
@@ -30,21 +30,70 @@ services:
     networks:
       - bot-network
 
-  minio:
-    image: minio/minio
-    container_name: bot_storage
+  frontend:
+    build: ./frontend
+    container_name: academ-frontend
     ports:
-      - "9000:9000"
-      - "9001:9001"
-    environment:
-      MINIO_ROOT_USER: admin
-      MINIO_ROOT_PASSWORD: 1234567890
-
-    volumes:
-      - ./data:/data
+      - "3000:80"
     networks:
       - bot-network
-    command: ["server", "/data", "--console-address", ":9001"]
+    depends_on:
+      - rest-service
+
+  rest-service:
+    build:
+      context: .
+      dockerfile: rest-service/Dockerfile
+    container_name: academ-rest
+    ports:
+      - "8086:8086"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/AcademBot
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=postgres
+    depends_on:
+      - db
+      - rabbitmq
+    networks:
+      - bot-network
+
+  node:
+    build:
+      context: .
+      dockerfile: node/Dockerfile
+    container_name: academ-node
+    ports:
+      - "8084:8084"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/AcademBot
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=postgres
+      - SPRING_RABBITMQ_HOST=rabbitmq
+      - SPRING_RABBITMQ_PORT=5672
+      - SPRING_RABBITMQ_USERNAME=guest
+      - SPRING_RABBITMQ_PASSWORD=guest
+    depends_on:
+      - db
+      - rabbitmq
+    networks:
+      - bot-network
+
+  dispatcher:
+    build:
+      context: .
+      dockerfile: dispatcher/Dockerfile
+    container_name: academ-dispatcher
+    ports:
+      - "8085:8085"
+    environment:
+      - SPRING_RABBITMQ_HOST=rabbitmq
+      - SPRING_RABBITMQ_PORT=5672
+      - SPRING_RABBITMQ_USERNAME=guest
+      - SPRING_RABBITMQ_PASSWORD=guest
+    depends_on:
+      - rabbitmq
+    networks:
+      - bot-network
     restart: unless-stopped
 
 networks:
