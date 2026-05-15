@@ -24,6 +24,7 @@ public class SecurityConfig {
 
                 http
                         .csrf(csrf -> csrf.disable())
+                        .cors(cors -> {})
                         .authorizeHttpRequests(auth -> auth
                                 .anyRequest().permitAll())
 //                                .requestMatchers("/v2/api-docs").permitAll()//todo
