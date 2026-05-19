@@ -1,0 +1,11 @@
+databaseChangeLog:
+  - changeSet:
+      id: 025-add-column-date
+      author: Saveliy Shatskikh
+      changes:
+        - addColumn:
+            tableName: event
+            columns:
+              - column:
+                  name: date
+                  type: date

@@ -45,7 +45,7 @@ public class UpdateController {
 
         var msg = update.getMessage();
 
-        if (msg.hasText()) {
+        if (msg.hasText() || msg.hasPhoto() || msg.hasDocument()) {
             processTextMessage(update);
         } else  {
             setUnsupportedMessageTypeView(update);

@@ -66,3 +66,16 @@ export interface LoginRequest {
 export interface AuthResponse {
   token: string;
 }
+
+export interface EventRequestDto {
+  name: string;
+  description?: string;
+  date: string; // LocalDateTime format
+}
+
+export interface EventResponseDto {
+  id: number;
+  name: string;
+  description?: string;
+  date: string;
+}

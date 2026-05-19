@@ -39,6 +39,9 @@ public class Group {
     @OneToMany(mappedBy = "group")
     private List<Subject> subjects;
 
+    @OneToMany(mappedBy = "group")
+    private List<Event> events;
+
     @ManyToOne
     @JoinColumn(name = "faculty_id")
     Faculty faculty;

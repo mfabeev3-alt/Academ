@@ -15,6 +15,7 @@ public class MenuCommandMapper {
         this.menuToCommand = new HashMap<>();
         menuToCommand.put("Какая сейчас пара?", "/current_lesson");
         menuToCommand.put("Расписание на неделю", "/weekly_schedule");
+        menuToCommand.put("Мероприятия", "/events");
     }
 
     public String map(String text) {

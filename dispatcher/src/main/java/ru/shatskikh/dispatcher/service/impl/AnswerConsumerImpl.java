@@ -4,7 +4,7 @@ package ru.shatskikh.dispatcher.service.impl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Service;
-import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
+import org.telegram.telegrambots.meta.api.methods.PartialBotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.menubutton.SetChatMenuButton;
 import org.telegram.telegrambots.meta.api.objects.menubutton.MenuButton;
 import org.telegram.telegrambots.meta.api.objects.menubutton.MenuButtonDefault;
@@ -26,7 +26,7 @@ public class AnswerConsumerImpl implements AnswerConsumer {
 
     @Override
     @RabbitListener(queues = ANSWER_MESSAGE)
-    public void consume(BotApiMethod<?> message) {telegramBot.sendAnswerMessage(message);}
+    public void consume(PartialBotApiMethod<?> message) {telegramBot.sendAnswerMessage(message);}
 
     @Override
     @RabbitListener(queues =  ANSWER_MESSAGE_WEB_APP)

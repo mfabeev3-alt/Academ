@@ -52,14 +52,13 @@ public class BroadcastCommand implements BotCommand {
 
         if (user.getUserRole().getLevel() >= UserRole.ROLE_MODERATOR.getLevel() ) {
             rows.add(List.of(
-                    InlineKeyboardButton.builder().text("По факултету").callbackData("bc_faculty").build()
+                    InlineKeyboardButton.builder().text("По факультету").callbackData("bc_faculty").build()
             ));
 
         }
 
        if (user.getUserRole().getLevel() == UserRole.ROLE_ADMIN.getLevel() ) {
            rows.add(List.of(
-                   InlineKeyboardButton.builder().text("По корпусу").callbackData("bc_all").build(),
                    InlineKeyboardButton.builder().text("По академии").callbackData("bc_all").build()
            ));
 

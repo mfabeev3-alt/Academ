@@ -43,5 +43,13 @@ databaseChangeLog:
       file: db/changelog/022-replace-course-with-entry-year.yaml
   - include:
       file: db/changelog/023-set-start-date.yaml
+  - include:
+      file: db/changelog/024-create-table-event.yaml
+  - include:
+      file: db/changelog/025-add-column-date.yaml
+  - include:
+      file: db/changelog/026-alter-column-date.yaml
+
+
 
 

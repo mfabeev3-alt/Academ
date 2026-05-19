@@ -62,7 +62,14 @@ public class BroadcastCallbackHandler implements CallbackHandler {
             user.setTempData("READY_" + facultyId + "_" + courseValue);
             appUserRepository.save(user);
 
-            messageSender.sendEditAnswer(chatId, messageId, "✅ Отлично! Теперь отправьте текст рассылки", null);
+            messageSender.sendEditAnswer(chatId, messageId, "✅ Отлично! Теперь отправьте текст рассылки.", null);
+
+        } else if(data.startsWith("bc_all")) {
+
+            user.setTempData("READY_ALL");
+            appUserRepository.save(user);
+
+            messageSender.sendEditAnswer(chatId, messageId, "✅ Отлично! Теперь отправьте текст рассылки.", null);
 
         }
 
@@ -85,7 +92,7 @@ public class BroadcastCallbackHandler implements CallbackHandler {
         }
 
         markup.setKeyboard(rows);
-        messageSender.sendEditAnswer(chatId, messageId, "\uD83D\uDCA1 Выберите курс", markup);
+        messageSender.sendEditAnswer(chatId, messageId, "\uD83D\uDCA1 Выберите курс.", markup);
 
     }
 
@@ -108,7 +115,7 @@ public class BroadcastCallbackHandler implements CallbackHandler {
         }
 
         markup.setKeyboard(rows);
-        messageSender.sendEditAnswer(chatId, messageId, "\uD83C\uDFDA Выберите факультет", markup);
+        messageSender.sendEditAnswer(chatId, messageId, "\uD83C\uDFDA Выберите факультет.", markup);
     }
 
 }

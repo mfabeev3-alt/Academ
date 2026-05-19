@@ -33,12 +33,13 @@ public class BroadcastStateHandler implements StateHandler {
 
 
     @Override
-    public void handle(Update update, AppUser moderator) {
+    public void handle(Update update, AppUser admin) {
 
         var message = update.getMessage();
         var text = message.getText();
         var chatId = message.getChatId();
-        var tempData = moderator.getTempData();
+        var tempData = admin.getTempData();
+
 
         if(tempData == null || !tempData.startsWith("READY_")){
             messageSender.sendAnswer("❌ Ошибка в последовательности действий.", chatId);
@@ -47,44 +48,80 @@ public class BroadcastStateHandler implements StateHandler {
 
             String [] parts = tempData.split("_");
 
-        if (parts.length < 3) {
+        if (parts.length > 3) {
             messageSender.sendAnswer("❌ Ошибка: повреждены временные данные", chatId);
             return;
         }
 
         try {
 
-            Course targetCourse = Course.fromValue(Integer.parseInt(parts[1]));
-            Long facultyId = Long.parseLong(parts[2]);
-            Faculty targetFaculty = facultyRepository.findById(facultyId).orElseThrow(FacultyNotFoundException::new);
+            if(parts.length == 3) {
+
+                Course targetCourse = Course.fromValue(Integer.parseInt(parts[1]));
+                Long facultyId = Long.parseLong(parts[2]);
+
+                Faculty targetFaculty = facultyRepository.findById(facultyId).orElseThrow(FacultyNotFoundException::new);
 
 
-            LocalDate now = LocalDate.now();
-            int currentYear = now.getYear();
-            int entryYear;
+                LocalDate now = LocalDate.now();
+                int currentYear = now.getYear();
+                int entryYear;
 
-            if (now.getMonthValue() >= 9) {
+                if (now.getMonthValue() >= 9) {
 
-                entryYear = currentYear - (targetCourse.getValue() - 1);
+                    entryYear = currentYear - (targetCourse.getValue() - 1);
+                } else {
+
+                    entryYear = currentYear - targetCourse.getValue();
+                }
+
+                List<AppUser> recipients = appUserRepository.findAllByGroup_EntryYearAndGroup_Faculty(
+                        entryYear, targetFaculty);
+
+                for (AppUser recipient : recipients) {
+
+
+                    if (message.hasPhoto()) {
+
+                        messageSender.sendAnswer(update, recipient.getTelegramUserId());
+
+                    } else {
+
+                        messageSender.sendAnswer(text, recipient.getTelegramUserId());
+                    }
+
+                }
+
+                admin.setTempData(null);
+                admin.setUserState(UserState.IDLE);
+                appUserRepository.save(admin);
+
+                messageSender.sendAnswer("\uD83C\uDF89 Рассылка успешно завершена!", chatId);
+
             } else {
 
-                entryYear = currentYear - targetCourse.getValue();
+                List<AppUser> recipients = appUserRepository.findAll();
+
+                for (AppUser recipient : recipients) {
+
+                    if (message.hasPhoto()) {
+
+                        messageSender.sendAnswer(update, recipient.getTelegramUserId());
+
+                    } else {
+                        messageSender.sendAnswer(text, recipient.getTelegramUserId());
+                    }
+
+                }
+
+                admin.setTempData(null);
+                admin.setUserState(UserState.IDLE);
+                appUserRepository.save(admin);
+
+                messageSender.sendAnswer("\uD83C\uDF89 Рассылка успешно завершена!", chatId);
+
+
             }
-
-            List<AppUser> recipients = appUserRepository.findAllByGroup_EntryYearAndGroup_Faculty(
-                   entryYear, targetFaculty);
-
-            for (AppUser recipient : recipients) {
-
-                messageSender.sendAnswer(text, recipient.getTelegramUserId());
-
-            }
-
-            moderator.setTempData(null);
-            moderator.setUserState(UserState.IDLE);
-            appUserRepository.save(moderator);
-
-            messageSender.sendAnswer("\uD83C\uDF89 Расскалка успешно завершена!", chatId);
 
         } catch (NumberFormatException e) {
 

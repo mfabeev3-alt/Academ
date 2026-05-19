@@ -16,7 +16,7 @@ public class TestTokenLogger implements CommandLineRunner {
     @Override
     public void run(String... args) throws Exception {
 
-        String testToken = jwtService.generateToken(1L,1021965324L);
+        String testToken = jwtService.generateToken(1021965324L,1L);
 
         log.info("==============================================");
         log.info("ТЕСТОВЫЙ JWT ТОКЕН ДЛЯ POSTMAN:");

@@ -71,8 +71,12 @@ public class RegistrationCallbackHandler implements CallbackHandler {
                 KeyboardRow row2 = new KeyboardRow();
                 row2.add("Расписание на неделю");
 
+                KeyboardRow row3 = new KeyboardRow();
+                row3.add("Мероприятия");
+
                 keyboard.add(row1);
                 keyboard.add(row2);
+                keyboard.add(row3);
 
                 keyboardMarkup.setKeyboard(keyboard);
 

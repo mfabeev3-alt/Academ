@@ -1,0 +1,33 @@
+databaseChangeLog:
+  - changeSet:
+      id: 024-create-table-event
+      author: Saveliy Shatskikh
+      changes:
+        - createTable:
+            tableName: event
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: pk_event
+                    nullable: false
+
+              - column:
+                  name: name
+                  type: VARCHAR(255)
+
+              - column:
+                  name: description
+                  type: TEXT
+
+              - column:
+                  name: group_id
+                  type: BIGINT
+                  constraints:
+                    nullable: true
+                    foreignKeyName: fk_event_group
+                    referencedTableName: app_group
+                    referencedColumnNames: id

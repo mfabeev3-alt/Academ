@@ -25,13 +25,14 @@ import {
   SubjectResponseDto, 
   ProfessorResponseDto, 
   ScheduleResponseDto, 
+  EventResponseDto,
   DayOfWeek,
   LocalTime
 } from './types';
 import ErrorModal from './components/ErrorModal';
 import TestingInstructions from './components/TestingInstructions';
 
-type Tab = 'schedule' | 'subjects' | 'professors';
+type Tab = 'schedule' | 'subjects' | 'professors' | 'events';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<Tab>('schedule');
@@ -44,6 +45,7 @@ export default function App() {
   const [subjects, setSubjects] = useState<SubjectResponseDto[]>([]);
   const [professors, setProfessors] = useState<ProfessorResponseDto[]>([]);
   const [schedule, setSchedule] = useState<ScheduleResponseDto[]>([]);
+  const [events, setEvents] = useState<EventResponseDto[]>([]);
 
   // Form states
   const [isAdding, setIsAdding] = useState(false);
@@ -95,6 +97,11 @@ export default function App() {
         endTime: getFormattedTime(item.endTime),
         activeWeeks: Array.isArray(item.activeWeeks) ? item.activeWeeks.join(',') : ''
       });
+    } else if (activeTab === 'events') {
+      setFormData({
+        ...item,
+        date: item.date ? item.date.split('.')[0] : '' // Handle LocalDateTime string
+      });
     } else {
       setFormData(item);
     }
@@ -107,6 +114,7 @@ export default function App() {
       let endpoint = '';
       if (activeTab === 'subjects') endpoint = '/subject';
       else if (activeTab === 'professors') endpoint = '/professor';
+      else if (activeTab === 'events') endpoint = '/event';
       else endpoint = '/schedule';
 
       const payload = { ...formData };
@@ -135,6 +143,7 @@ export default function App() {
       let endpoint = '';
       if (activeTab === 'subjects') endpoint = '/subject';
       else if (activeTab === 'professors') endpoint = '/professor';
+      else if (activeTab === 'events') endpoint = '/event';
       else endpoint = '/schedule';
 
       await api.delete(`${endpoint}/${id}`);
@@ -182,14 +191,16 @@ export default function App() {
 
   const fetchInitialData = async () => {
     try {
-      const [subs, profs, sched] = await Promise.all([
+      const [subs, profs, sched, evs] = await Promise.all([
         api.get<SubjectResponseDto[]>('/subject'),
         api.get<ProfessorResponseDto[]>('/professor'),
-        api.get<ScheduleResponseDto[]>('/schedule')
+        api.get<ScheduleResponseDto[]>('/schedule'),
+        api.get<EventResponseDto[]>('/event')
       ]);
       setSubjects(subs.data);
       setProfessors(profs.data);
       setSchedule(sched.data);
+      setEvents(evs.data);
     } catch (err) {
       setError(handleApiError(err));
     }
@@ -422,6 +433,57 @@ export default function App() {
               </div>
             </motion.div>
           )}
+
+          {activeTab === 'events' && (
+            <motion.div
+              key="events"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+            >
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-xl font-bold">Мероприятия</h2>
+                <button 
+                  onClick={handleOpenAdd}
+                  className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors shadow-sm"
+                  id="add-event-btn"
+                >
+                  <Plus className="w-4 h-4" />
+                  Создать
+                </button>
+              </div>
+              <div className="space-y-4">
+                {events.length === 0 ? (
+                  <div className="text-center py-12 bg-white rounded-xl border border-dashed border-gray-300">
+                    <Calendar className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+                    <p className="text-gray-500">Мероприятий пока нет</p>
+                  </div>
+                ) : (
+                  events.map(event => (
+                    <div key={event.id} className="bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex justify-between items-start">
+                      <div>
+                        <div className="font-bold text-lg mb-1">{event.name}</div>
+                        {event.description && <p className="text-sm text-gray-600 mb-3">{event.description}</p>}
+                        <div className="flex items-center gap-2 text-sm text-blue-600 font-medium">
+                          <Clock className="w-4 h-4" />
+                          {new Date(event.date).toLocaleString('ru-RU', { 
+                            day: 'numeric', 
+                            month: 'long', 
+                            hour: '2-digit', 
+                            minute: '2-digit' 
+                          })}
+                        </div>
+                      </div>
+                      <div className="flex gap-1">
+                        <button onClick={() => handleOpenEdit(event)} className="p-2 text-gray-400 hover:text-blue-500 transition-colors"><Edit2 className="w-4 h-4" /></button>
+                        <button onClick={() => handleDelete(event.id)} className="p-2 text-gray-400 hover:text-red-500 transition-colors"><Trash2 className="w-4 h-4" /></button>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            </motion.div>
+          )}
         </AnimatePresence>
       </main>
 
@@ -451,6 +513,14 @@ export default function App() {
           >
             <Users className="w-6 h-6" />
             <span className="text-[10px] font-medium uppercase tracking-wider">Педагоги</span>
+          </button>
+          <button
+            id="nav-events"
+            onClick={() => setActiveTab('events')}
+            className={`flex flex-col items-center gap-1 transition-colors ${activeTab === 'events' ? 'text-blue-600' : 'text-gray-400'}`}
+          >
+            <Calendar className="w-6 h-6 text-indigo-500" />
+            <span className="text-[10px] font-medium uppercase tracking-wider">Ивенты</span>
           </button>
         </div>
       </nav>
@@ -508,7 +578,7 @@ export default function App() {
               <form onSubmit={handleSubmit}>
                 <div className="p-4 border-b border-gray-100 flex items-center justify-between bg-gray-50">
                   <h3 className="font-bold text-lg">
-                    {editingItem ? 'Редактировать' : 'Добавить'} {activeTab === 'subjects' ? 'предмет' : activeTab === 'professors' ? 'преподавателя' : 'занятие'}
+                    {editingItem ? 'Редактировать' : 'Добавить'} {activeTab === 'subjects' ? 'предмет' : activeTab === 'professors' ? 'преподавателя' : activeTab === 'events' ? 'мероприятие' : 'занятие'}
                   </h3>
                   <button type="button" onClick={() => setIsAdding(false)} className="text-gray-400 hover:text-gray-600">
                     <X className="w-6 h-6" />
@@ -526,6 +596,39 @@ export default function App() {
                         onChange={e => setFormData({...formData, name: e.target.value})}
                       />
                     </div>
+                  )}
+
+                  {activeTab === 'events' && (
+                    <>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Название мероприятия</label>
+                        <input 
+                          required
+                          className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                          value={formData.name || ''}
+                          onChange={e => setFormData({...formData, name: e.target.value})}
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Описание (необязательно)</label>
+                        <textarea 
+                          rows={3}
+                          className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                          value={formData.description || ''}
+                          onChange={e => setFormData({...formData, description: e.target.value})}
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Дата и время</label>
+                        <input 
+                          type="datetime-local"
+                          required
+                          className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                          value={formData.date || ''}
+                          onChange={e => setFormData({...formData, date: e.target.value})}
+                        />
+                      </div>
+                    </>
                   )}
 
                   {activeTab === 'professors' && (
