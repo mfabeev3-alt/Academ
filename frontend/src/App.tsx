@@ -512,7 +512,7 @@ export default function App() {
             className={`flex flex-col items-center gap-1 transition-colors ${activeTab === 'professors' ? 'text-blue-600' : 'text-gray-400'}`}
           >
             <Users className="w-6 h-6" />
-            <span className="text-[10px] font-medium uppercase tracking-wider">Педагоги</span>
+            <span className="text-[10px] font-medium uppercase tracking-wider">Преподаватели</span>
           </button>
           <button
             id="nav-events"
@@ -520,7 +520,7 @@ export default function App() {
             className={`flex flex-col items-center gap-1 transition-colors ${activeTab === 'events' ? 'text-blue-600' : 'text-gray-400'}`}
           >
             <Calendar className="w-6 h-6 text-indigo-500" />
-            <span className="text-[10px] font-medium uppercase tracking-wider">Ивенты</span>
+            <span className="text-[10px] font-medium uppercase tracking-wider">Мероприятия</span>
           </button>
         </div>
       </nav>
